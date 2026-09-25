@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Bibliotekssystem.Database;
- //everything is ai just to test 
+//everything is ai just to test 
 namespace Bibliotekssystem
 {
     public partial class MainWindow : Window
@@ -60,6 +60,47 @@ namespace Bibliotekssystem
             }
 
             Console.WriteLine("\n[TEST KLART] Tryck i konsolen eller stäng fönstret.");
+            RunSearchTest();
+        }
+    
+    private void RunSearchTest()
+        {
+            Console.WriteLine("========================================");
+            Console.WriteLine("          KÖR TEST: SÖKLOGIK           ");
+            Console.WriteLine("========================================\n");
+
+            DataCalls db = new DataCalls();
+
+            // Test 1: Sök på en del av en titel ("ringen")[cite: 1]
+            TestQuery(db, "ringen", "Titel-sökning");
+
+            // Test 2: Sök på författare ("Tolkien")[cite: 1]
+            TestQuery(db, "Tolkien", "Författar-sökning");
+
+            // Test 3: Sök på ISBN ("978-9144")[cite: 1]
+            TestQuery(db, "978-9144", "ISBN-sökning");
+
+            // Test 4: Sök på SAB-kod ("Hc" - ska ge både Sagan om Ringen och filmen Interstellar)[cite: 1]
+            TestQuery(db, "Hc", "SAB-sökning");
+        }
+
+        private void TestQuery(DataCalls db, string term, string testDescription)
+        {
+            Console.WriteLine($"--- Test: {testDescription} (Term: \"{term}\") ---");
+            var results = db.SearchMedia(term);
+
+            if (results.Count == 0)
+            {
+                Console.WriteLine("  Inga träffar.");
+            }
+            else
+            {
+                foreach (var item in results)
+                {
+                    Console.WriteLine($"  Träff: [ID: {item.Id}] {item.Title} (SAB: {item.SabCategory})");
+                }
+            }
+            Console.WriteLine();
         }
     }
 }

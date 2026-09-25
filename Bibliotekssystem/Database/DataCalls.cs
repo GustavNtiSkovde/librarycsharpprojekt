@@ -13,10 +13,34 @@ namespace Bibliotekssystem.Database
         };
 
         public List<Media> MediaList = new List<Media>
-        {
-            new Book { Id = 1, Title = "Sagan om Ringen", Price = 250m, ISBN = "978-0261102385", SabCategory = "Hc" },
-            new Book { Id = 2, Title = "C# för Nybörjare", Price = 400m, ISBN = "978-9144000000", SabCategory = "F" }
-        };
+{
+    new Book
+    {
+        Id = 1,
+        Title = "Sagan om Ringen",
+        Price = 250m,
+        ISBN = "978-0261102385",
+        SabCategory = "Hc",
+        Authors = new List<Author> { new Author { Id = 1, Name = "J.R.R. Tolkien" } }
+    },
+    new Book
+    {
+        Id = 2,
+        Title = "C# för Nybörjare",
+        Price = 400m,
+        ISBN = "978-9144000000",
+        SabCategory = "F",
+        Authors = new List<Author> { new Author { Id = 2, Name = "Anders Hejlsberg" } }
+    },
+    new Media
+    {
+        Id = 3,
+        Title = "Interstellar",
+        Price = 199m,
+        SabCategory = "Hc",
+        MediaType = "Film"
+    }
+};
 
         public List<Copy> Copies = new List<Copy>
         {
@@ -125,6 +149,64 @@ namespace Bibliotekssystem.Database
             }
 
             return invoices;
+        }
+        //search
+        public List<Media> SearchMedia(string searchTerm)
+        {
+            List<Media> results = new List<Media>();
+
+            // if empty return all catolgoeu
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return MediaList;
+            }
+
+            string query = searchTerm.Trim().ToLower();
+
+            foreach (Media item in MediaList)
+            {
+                bool isMatch = false;
+
+                //title
+                if (item.Title.ToLower().Contains(query))
+                {
+                    isMatch = true;
+                }
+
+                //  sab
+                if (item.SabCategory.ToLower().Contains(query))
+                {
+                    isMatch = true;
+                }
+
+                // .if book {förftarrre+isbn}
+                if (item is Book book)
+                {
+                    // isbn
+                    if (book.ISBN.ToLower().Contains(query))
+                    {
+                        isMatch = true;
+                    }
+
+                    // förftarrre
+                    foreach (Author author in book.Authors)
+                    {
+                        if (author.Name.ToLower().Contains(query))
+                        {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                // if match show
+                if (isMatch)
+                {
+                    results.Add(item);
+                }
+            }
+
+            return results;
         }
     }
 }
