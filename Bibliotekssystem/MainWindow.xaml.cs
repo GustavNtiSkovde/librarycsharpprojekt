@@ -1,106 +1,107 @@
-﻿using System.Text;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Bibliotekssystem.Database;
-//everything is ai just to test 
+
 namespace Bibliotekssystem
 {
     public partial class MainWindow : Window
     {
+        private DataCalls db;
+
         public MainWindow()
         {
             InitializeComponent();
+            db = new DataCalls();
 
-            // Kör terminaltestet direkt vid start
-            RunLateFeeTest();
+            Task.Run(() => StartConsoleLoop());
+        }
+
+        private void StartConsoleLoop()
+        {
+            while (true)
+            {
+                Console.Write("> ");
+                string input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                    continue;
+
+                string[] parts = input.Split(' ');
+                string command = parts[0].ToLower();
+
+                if (command == "/exit")
+                {
+                    Application.Current.Dispatcher.Invoke(() => Application.Current.Shutdown());
+                    break;
+                }
+                else if (command == "/search" && parts.Length > 1)
+                {
+                    TestQuery(parts[1]);
+                }
+                else if (command == "/overdue")
+                {
+                    RunLateFeeTest();
+                }
+                else if (command == "/lana" && parts.Length == 3)
+                {
+                    int mediaId = int.Parse(parts[1]);
+                    int userId = int.Parse(parts[2]);
+
+                    var loan = db.BorrowMedia(userId, mediaId);
+
+                    if (loan != null)
+                    {
+                        Console.WriteLine($"Lån skapat. KopiaID: {loan.CopyId} | Förfaller: {loan.DueDate:yyyy-MM-dd}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fel: Ingen ledig kopia hittades för detta media.");
+                    }
+                }
+                else if (command == "/aterlamna" && parts.Length == 2)
+                {
+                    int copyId = int.Parse(parts[1]);
+                    bool success = db.ReturnMedia(copyId);
+
+                    if (success)
+                    {
+                        Console.WriteLine($"Kopia {copyId} har lämnats tillbaka och är tillgänglig.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fel: Hittade inget aktivt lån för denna kopia.");
+                    }
+                }
+            }
         }
 
         private void RunLateFeeTest()
         {
-            Console.WriteLine("========================================");
-            Console.WriteLine("   KÖR TEST: FÖRSENING & FAKTURALOGIK   ");
-            Console.WriteLine("========================================\n");
-
-            DataCalls db = new DataCalls();
-
-            Console.WriteLine("1. Kollar status före kontroll:");
-            foreach (var copy in db.Copies)
-            {
-                Console.WriteLine($"   Kopia {copy.Barcode} (ID: {copy.Id}) - Status: {copy.Status}");
-            }
-
-            Console.WriteLine("\n2. Letar efter försenade lån...");
             var invoices = db.ProcessOverdueLoans();
-
-            Console.WriteLine($"\nAntal försenade lån funna: {invoices.Count}");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine($"Försenade lån/Fakturor: {invoices.Count}");
 
             foreach (var inv in invoices)
             {
-                Console.WriteLine($"FAKTURA FÖR LÅN #{inv.LoanId}:");
-                Console.WriteLine($"  Låntagare:         {inv.BorrowerName}");
-                Console.WriteLine($"  Media:             {inv.Title}");
-                Console.WriteLine($"  Förfallodatum:     {inv.DueDate:yyyy-MM-dd}");
-                Console.WriteLine($"  Ursprungligt pris: {inv.OriginalPrice} kr");
-                Console.WriteLine($"  Fakturabelopp:     {inv.InvoiceAmount} kr (1.5x straffavgift)");
-                Console.WriteLine("----------------------------------------");
+                Console.WriteLine($"LånID: {inv.LoanId} | Användare: {inv.BorrowerName} | Media: {inv.Title} | Belopp: {inv.InvoiceAmount}kr");
             }
 
-            Console.WriteLine("\n3. Kollar status efter kontroll:");
+            Console.WriteLine("Kopior i systemet:");
             foreach (var copy in db.Copies)
             {
-                Console.WriteLine($"   Kopia {copy.Barcode} (ID: {copy.Id}) - Ny Status: {copy.Status}");
+                Console.WriteLine($"KopiaID: {copy.Id} | Status: {copy.Status}");
             }
-
-            Console.WriteLine("\n[TEST KLART] Tryck i konsolen eller stäng fönstret.");
-            RunSearchTest();
-        }
-    
-    private void RunSearchTest()
-        {
-            Console.WriteLine("========================================");
-            Console.WriteLine("          KÖR TEST: SÖKLOGIK           ");
-            Console.WriteLine("========================================\n");
-
-            DataCalls db = new DataCalls();
-
-            // Test 1: Sök på en del av en titel ("ringen")[cite: 1]
-            TestQuery(db, "ringen", "Titel-sökning");
-
-            // Test 2: Sök på författare ("Tolkien")[cite: 1]
-            TestQuery(db, "Tolkien", "Författar-sökning");
-
-            // Test 3: Sök på ISBN ("978-9144")[cite: 1]
-            TestQuery(db, "978-9144", "ISBN-sökning");
-
-            // Test 4: Sök på SAB-kod ("Hc" - ska ge både Sagan om Ringen och filmen Interstellar)[cite: 1]
-            TestQuery(db, "Hc", "SAB-sökning");
         }
 
-        private void TestQuery(DataCalls db, string term, string testDescription)
+        private void TestQuery(string term)
         {
-            Console.WriteLine($"--- Test: {testDescription} (Term: \"{term}\") ---");
             var results = db.SearchMedia(term);
+            Console.WriteLine($"Träffar: {results.Count}");
 
-            if (results.Count == 0)
+            foreach (var item in results)
             {
-                Console.WriteLine("  Inga träffar.");
+                Console.WriteLine($"ID: {item.Id} | Titel: {item.Title} | SAB: {item.SabCategory}");
             }
-            else
-            {
-                foreach (var item in results)
-                {
-                    Console.WriteLine($"  Träff: [ID: {item.Id}] {item.Title} (SAB: {item.SabCategory})");
-                }
-            }
-            Console.WriteLine();
         }
     }
 }

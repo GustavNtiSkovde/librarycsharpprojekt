@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-//most is placeholder shit
+//most is placeholder
 namespace Bibliotekssystem.Database
 {
     //roles
@@ -16,7 +16,7 @@ namespace Bibliotekssystem.Database
         public int Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public UserRole Role { get; set; } = UserRole.User; //skiljer user och admin
+        public UserRole Role { get; set; } = UserRole.User; // default role is User
     }
 
     // placeholder data model for media items (books, movies, audiobooks)
@@ -24,13 +24,13 @@ namespace Bibliotekssystem.Database
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string SabCategory { get; set; } = string.Empty; // sab reffer to this shit -> https://en.wikipedia.org/wiki/Swedish_library_classification_system
-        public decimal Price { get; set; }                      // Inköps o ersättningsvärde
-        public string MediaType { get; set; } = string.Empty;   // bok, film, ljudbokk
+        public string SabCategory { get; set; } = string.Empty;
+        public decimal Price { get; set; }                      
+        public string MediaType { get; set; } = string.Empty;   // book, movie, audiobook
 
     }
 
-    // isbn o författare är specifika för böcker 
+    // isbn and authors for books
     public class Book : Media
     {
         public string ISBN { get; set; } = string.Empty;        // Unikt ISBN

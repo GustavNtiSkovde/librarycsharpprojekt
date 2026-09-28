@@ -208,5 +208,53 @@ namespace Bibliotekssystem.Database
 
             return results;
         }
+        public Loan BorrowMedia(int userId, int mediaId)
+        {
+            //loop to see which is available and borrow it, if none available return null
+            foreach (Copy copy in Copies)
+            {
+                if (copy.MediaId == mediaId && copy.Status == "Tillgänglig")
+                {
+                    copy.Status = "Utlånad";
+
+                    Loan newLoan = new Loan();
+                    newLoan.Id = Loans.Count + 1;
+                    newLoan.CopyId = copy.Id;
+                    newLoan.UserId = userId;
+                    newLoan.LoanDate = DateTime.Now;
+                    newLoan.DueDate = DateTime.Now.AddDays(21); // 3 weeks 
+                    newLoan.ReturnedDate = null;
+
+                    Loans.Add(newLoan);
+                    return newLoan;
+                }
+            }
+
+            return null; // if no copy available
+        }
+
+        public bool ReturnMedia(int copyId)
+        {
+            // loop loan to see if its not already returned, if not mark it as returned and make the copy available again
+            foreach (Loan loan in Loans)
+            {
+                if (loan.CopyId == copyId && loan.ReturnedDate == null)
+                {
+                    loan.ReturnedDate = DateTime.Now;
+
+                    // loop copy to mark it as available
+                    foreach (Copy copy in Copies)
+                    {
+                        if (copy.Id == copyId)
+                        {
+                            copy.Status = "Tillgänglig";
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }
