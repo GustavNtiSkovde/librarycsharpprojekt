@@ -1,260 +1,210 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
-using System.Text;
+
 namespace Bibliotekssystem.Database
 {
     public class DataCalls
     {
-        // placeholder testing data remove oneday (maybe) 
-        public List<User> Users = new List<User>
-        {
-            new User { Id = 1, Username = "user", Role = UserRole.User },
-            new User { Id = 2, Username = "admin", Role = UserRole.Admin }
-        };
+        private string connectionString = "Server=127.0.0.1;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
 
-        public List<Media> MediaList = new List<Media>
-{
-    new Book
-    {
-        Id = 1,
-        Title = "Sagan om Ringen",
-        Price = 250m,
-        ISBN = "978-0261102385",
-        SabCategory = "Hc",
-        Authors = new List<Author> { new Author { Id = 1, Name = "J.R.R. Tolkien" } }
-    },
-    new Book
-    {
-        Id = 2,
-        Title = "C# för Nybörjare",
-        Price = 400m,
-        ISBN = "978-9144000000",
-        SabCategory = "F",
-        Authors = new List<Author> { new Author { Id = 2, Name = "Anders Hejlsberg" } }
-    },
-    new Media
-    {
-        Id = 3,
-        Title = "Interstellar",
-        Price = 199m,
-        SabCategory = "Hc",
-        MediaType = "Film"
-    }
-};
-
-        public List<Copy> Copies = new List<Copy>
+        public void TestConnection()
         {
-            new Copy { Id = 101, MediaId = 1, Barcode = "KOP-001", Status = "Utlånad" },
-            new Copy { Id = 102, MediaId = 2, Barcode = "KOP-002", Status = "Utlånad" }
-        };
-
-        public List<Loan> Loans = new List<Loan>
-        {
-            // Försenat lån 5dgr
-            new Loan
+            try
             {
-                Id = 1,
-                CopyId = 101,
-                UserId = 1,
-                LoanDate = DateTime.Now.AddDays(-26),
-                DueDate = DateTime.Now.AddDays(-5), // overdue
-                ReturnedDate = null
-            },
-            // not overdue
-            new Loan
-            {
-                Id = 2,
-                CopyId = 102,
-                UserId = 1,
-                LoanDate = DateTime.Now.AddDays(-5),
-                DueDate = DateTime.Now.AddDays(16),
-                ReturnedDate = null
-            }
-        };
-
-        // shopping logic
-
-        // Regel: Fakturaunderlag motsvarar 1.5 × mediets värde
-        public decimal CalculateLateFee(decimal mediaPrice)
-        {
-            return mediaPrice * 1.5m; 
-        }
-
-        // identifies overdueloan and creates invoice for it, also writes off the copy
-        public List<OverdueInvoice> ProcessOverdueLoans()
-        {
-            List<OverdueInvoice> invoices = new List<OverdueInvoice>();
-
-            // loop every loan to find overdue ones
-            foreach (Loan loan in Loans)
-            {
-                // Kontrollera om boken inte är återlämnad och slutdatumet har passerat
-                if (loan.ReturnedDate == null && loan.DueDate < DateTime.Now)
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
-                    // find vilken kopia
-                    Copy foundCopy = null;
-                    foreach (Copy c in Copies)
-                    {
-                        if (c.Id == loan.CopyId)
-                        {
-                            foundCopy = c;
-                            break; 
-                        }
-                    }
-
-                    // find price on media
-                    Media foundMedia = null;
-                    if (foundCopy != null)
-                    {
-                        foreach (Media m in MediaList)
-                        {
-                            if (m.Id == foundCopy.MediaId)
-                            {
-                                foundMedia = m;
-                                break;
-                            }
-                        }
-                    }
-
-                    // find user by id
-                    User foundUser = null;
-                    foreach (User u in Users)
-                    {
-                        if (u.Id == loan.UserId)
-                        { 
-                            foundUser = u;
-                            break;
-                        }
-                    }
-
-                    // if all is good write off the copy and create invoice
-                    if (foundCopy != null && foundMedia != null && foundUser != null)
-                    {
-                        foundCopy.Status = "Avskriven";
-
-                        // skapa fakutra och 1.5x priset
-                        OverdueInvoice invoice = new OverdueInvoice();
-                        invoice.LoanId = loan.Id;
-                        invoice.CopyId = foundCopy.Id;
-                        invoice.Title = foundMedia.Title;
-                        invoice.BorrowerName = foundUser.Username;
-                        invoice.DueDate = loan.DueDate;
-                        invoice.OriginalPrice = foundMedia.Price;
-                        invoice.InvoiceAmount = foundMedia.Price * 1.5m; 
-
-                        
-                        invoices.Add(invoice);
-                    }
+                    conn.Open();
+                    Console.WriteLine("Connected to the database.");
                 }
             }
-
-            return invoices;
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed: " + ex.Message);
+            }
         }
-        //search
+
+        // search
         public List<Media> SearchMedia(string searchTerm)
         {
             List<Media> results = new List<Media>();
-
-            // if empty return all catolgoeu
-            if (string.IsNullOrWhiteSpace(searchTerm))
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                return MediaList;
-            }
+                conn.Open();
 
-            string query = searchTerm.Trim().ToLower();
+                // SQL query to search media, books, categories, and authors
+                string query = @"
+                    SELECT m.ID, m.title, m.FORcategory, c.description AS categoryName, b.isbn,
+                           GROUP_CONCAT(CONCAT(p.fname, ' ', p.lname) SEPARATOR ', ') AS authors
+                    FROM media m
+                    LEFT JOIN book b ON m.ID = b.ID
+                    LEFT JOIN category c ON m.FORcategory = c.sabcode
+                    LEFT JOIN personmedia pm ON m.ID = pm.FORmedia
+                    LEFT JOIN person p ON pm.FORperson = p.ID
+                    WHERE m.title LIKE @search 
+                       OR b.isbn LIKE @search 
+                       OR c.description LIKE @search 
+                       OR p.fname LIKE @search 
+                       OR p.lname LIKE @search
+                    GROUP BY m.ID";
 
-            foreach (Media item in MediaList)
-            {
-                bool isMatch = false;
-
-                //title
-                if (item.Title.ToLower().Contains(query))
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
-                    isMatch = true;
-                }
-
-                //  sab
-                if (item.SabCategory.ToLower().Contains(query))
-                {
-                    isMatch = true;
-                }
-
-                // .if book {förftarrre+isbn}
-                if (item is Book book)
-                {
-                    // isbn
-                    if (book.ISBN.ToLower().Contains(query))
+                    cmd.Parameters.AddWithValue("@search", "%" + searchTerm + "%");
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        isMatch = true;
-                    }
-
-                    // förftarrre
-                    foreach (Author author in book.Authors)
-                    {
-                        if (author.Name.ToLower().Contains(query))
+                        while (reader.Read())
                         {
-                            isMatch = true;
-                            break;
+                            //grab results and put into media object
+                            Media m = new Media();
+                            m.Id = reader.GetInt32("ID");
+                            m.Title = reader.GetString("title");
+                            m.ForCategory = reader.IsDBNull(reader.GetOrdinal("FORcategory")) ? 0 : reader.GetInt32("FORcategory");
+                            m.Isbn = reader.IsDBNull(reader.GetOrdinal("isbn")) ? null : reader.GetString("isbn");
+
+                            // grab the actual string names aksed for in the query
+                            m.CategoryName = reader.IsDBNull(reader.GetOrdinal("categoryName")) ? "" : reader.GetString("categoryName");
+                            m.Authors = reader.IsDBNull(reader.GetOrdinal("authors")) ? "" : reader.GetString("authors");
+
+                            // if match show
+                            results.Add(m);
                         }
                     }
                 }
-
-                // if match show
-                if (isMatch)
-                {
-                    results.Add(item);
-                }
             }
-
             return results;
         }
+
         public Loan BorrowMedia(int userId, int mediaId)
         {
-            //loop to see which is available and borrow it, if none available return null
-            foreach (Copy copy in Copies)
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                if (copy.MediaId == mediaId && copy.Status == "Tillgänglig")
+                conn.Open();
+
+                // loop to see which is available and filter out active loans
+                string findCopyQuery = @"
+                    SELECT ID FROM copy 
+                    WHERE FORmedia = @mediaId 
+                    AND ID NOT IN (SELECT FORcopy FROM loan WHERE status = 'Active') 
+                    LIMIT 1";
+
+                int availableCopyId = 0;
+                using (MySqlCommand cmd = new MySqlCommand(findCopyQuery, conn))
                 {
-                    copy.Status = "Utlånad";
+                    cmd.Parameters.AddWithValue("@mediaId", mediaId);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null) availableCopyId = Convert.ToInt32(result);
+                }
 
-                    Loan newLoan = new Loan();
-                    newLoan.Id = Loans.Count + 1;
-                    newLoan.CopyId = copy.Id;
-                    newLoan.UserId = userId;
-                    newLoan.LoanDate = DateTime.Now;
-                    newLoan.DueDate = DateTime.Now.AddDays(21); // 3 weeks 
-                    newLoan.ReturnedDate = null;
+                // if copy found create loan in sql 
+                if (availableCopyId > 0)
+                {
+                    DateTime startDate = DateTime.Now;
+                    DateTime dueDate = startDate.AddDays(21); // 3 weeks 
 
-                    Loans.Add(newLoan);
-                    return newLoan;
+                    string insertLoanQuery = @"
+                        INSERT INTO loan (loanstartdate, returndate, status, FORuser, FORcopy) 
+                        VALUES (@start, @end, 'Active', @user, @copy);
+                        SELECT LAST_INSERT_ID();";
+
+                    using (MySqlCommand cmd = new MySqlCommand(insertLoanQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@start", startDate);
+                        cmd.Parameters.AddWithValue("@end", dueDate);
+                        cmd.Parameters.AddWithValue("@user", userId);
+                        cmd.Parameters.AddWithValue("@copy", availableCopyId);
+
+                        // gets the new id from db
+                        int newLoanId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        return new Loan { Id = newLoanId, ForCopy = availableCopyId, LoanStartDate = startDate };
+                    }
                 }
             }
-
             return null; // if no copy available
         }
 
         public bool ReturnMedia(int copyId)
         {
-            // loop loan to see if its not already returned, if not mark it as returned and make the copy available again
-            foreach (Loan loan in Loans)
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                if (loan.CopyId == copyId && loan.ReturnedDate == null)
+                conn.Open();
+                // mark it as returned and make copy available again
+                string query = "UPDATE loan SET status = 'Returned' WHERE FORcopy = @copy AND status = 'Active'";
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
-                    loan.ReturnedDate = DateTime.Now;
+                    cmd.Parameters.AddWithValue("@copy", copyId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0; // returns true if updated
+                }
+            }
+        }
 
-                    // loop copy to mark it as available
-                    foreach (Copy copy in Copies)
+        // identifies overdueloan and creates invoice for it, also writes off the copy
+        public List<Invoice> ProcessOverdueLoans()
+        {
+            List<Invoice> invoices = new List<Invoice>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // loop every loan to find overdue ones and grab replacement value
+                string findOverdueQuery = @"
+                    SELECT l.ID as LoanID, l.FORuser, m.replacementvalue 
+                    FROM loan l
+                    JOIN copy c ON l.FORcopy = c.ID
+                    JOIN media m ON c.FORmedia = m.ID
+                    WHERE l.status = 'Active' AND l.returndate < @now";
+
+                List<Tuple<int, int, decimal>> overdueData = new List<Tuple<int, int, decimal>>();
+
+                using (MySqlCommand cmd = new MySqlCommand(findOverdueQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@now", DateTime.Now.Date);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (copy.Id == copyId)
+                        while (reader.Read())
                         {
-                            copy.Status = "Tillgänglig";
-                            return true;
+                            overdueData.Add(new Tuple<int, int, decimal>(
+                                reader.GetInt32("LoanID"),
+                                reader.GetInt32("FORuser"),
+                                reader.GetDecimal("replacementvalue")
+                            ));
                         }
                     }
                 }
-            }
 
-            return false;
+                // create invoice and close overdue loans
+                foreach (var data in overdueData)
+                {
+                    decimal penalty = data.Item3 * 1.5m; // 1.5x price
+
+                    // write off loan
+                    string updateLoan = "UPDATE loan SET status = 'Overdue' WHERE ID = @loanId";
+                    using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@loanId", data.Item1);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // create invoice
+                    string insertInvoice = @"
+                        INSERT INTO invoice (amount, enddate, status, FORuser) 
+                        VALUES (@amount, @enddate, 'Unpaid', @user);
+                        SELECT LAST_INSERT_ID();";
+
+                    using (MySqlCommand cmd = new MySqlCommand(insertInvoice, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@amount", penalty);
+                        cmd.Parameters.AddWithValue("@enddate", DateTime.Now.AddDays(30));
+                        cmd.Parameters.AddWithValue("@user", data.Item2);
+
+                        int newInvoiceId = Convert.ToInt32(cmd.ExecuteScalar());
+                        invoices.Add(new Invoice { Id = newInvoiceId, ForUser = data.Item2, Amount = penalty });
+                    }
+                }
+            }
+            return invoices;
         }
     }
 }

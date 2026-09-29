@@ -1,77 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-//most is placeholder
+
 namespace Bibliotekssystem.Database
 {
-    //roles
-    public enum UserRole
-    {
-        User,
-        Admin
-    }
-
+ 
     public class User
     {
         public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public UserRole Role { get; set; } = UserRole.User; // default role is User
+        public string Role { get; set; } = "User"; 
+        public string Email { get; set; } = string.Empty; //  hashed
+        public string Password { get; set; } = string.Empty; //  hashed
     }
 
-    // placeholder data model for media items (books, movies, audiobooks)
+  
+    public class Category
+    {
+        public int SabCode { get; set; } 
+        public string Description { get; set; } = string.Empty; 
+    }
+
     public class Media
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string SabCategory { get; set; } = string.Empty;
-        public decimal Price { get; set; }                      
-        public string MediaType { get; set; } = string.Empty;   // book, movie, audiobook
-
+        public string MediaType { get; set; } = string.Empty;
+        public decimal PurchaseValue { get; set; }
+        public decimal ReplacementValue { get; set; }
+        public string Barcode { get; set; } = string.Empty;
+        public string? Isbn { get; set; }
+        public string? Ean { get; set; }
+        public int ForCategory { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public string Authors { get; set; } = string.Empty;
     }
 
-    // isbn and authors for books
-    public class Book : Media
-    {
-        public string ISBN { get; set; } = string.Empty;        // Unikt ISBN
-        public List<Author> Authors { get; set; } = new List<Author>(); // M - M
-    }
-
-    public class Author
+    public class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string Fnamn { get; set; } = string.Empty; 
+        public string Lnamn { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty; 
     }
 
-    //fysisk copia
+    
+    public class PersonMedia
+    {
+        public int Id { get; set; }
+        public int ForMedia { get; set; } 
+        public int ForPerson { get; set; } 
+    }
+
     public class Copy
     {
         public int Id { get; set; }
-        public int MediaId { get; set; }
-        public string Barcode { get; set; } = string.Empty;     // Unik streckkod/exemplar-ID
-        public string Status { get; set; } = "Tillgänglig";    // Status: Tillgänglig, Utlånad, Avskriven
+        public string LibraryCode { get; set; } = string.Empty; 
+        public int ForMedia { get; set; } 
     }
 
-    // Registrering av lån
     public class Loan
     {
         public int Id { get; set; }
-        public int CopyId { get; set; }
-        public int UserId { get; set; }
-        public DateTime LoanDate { get; set; } = DateTime.Now;
-        public DateTime DueDate { get; set; } = DateTime.Now.AddDays(21); // 3 weeks
-        public DateTime? ReturnedDate { get; set; }
+        public DateTime LoanStartDate { get; set; } = DateTime.Now;
+        public DateTime? ReturnDate { get; set; } 
+        public string Status { get; set; } = "Aktiv"; 
+        public int ForUser { get; set; }
+        public int ForCopy { get; set; } 
     }
 
-    // Försenings och fakturaunderlag för administratören
-    public class OverdueInvoice
+    public class Invoice
     {
-        public int LoanId { get; set; }
-        public int CopyId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string BorrowerName { get; set; } = string.Empty;
-        public DateTime DueDate { get; set; }
-        public decimal OriginalPrice { get; set; }
-        public decimal InvoiceAmount { get; set; } // 1.5 × media värde
+        public int Id { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime EndDate { get; set; } 
+        public string Status { get; set; } = "Obetald"; 
+        public int ForUser { get; set; }
     }
 }
