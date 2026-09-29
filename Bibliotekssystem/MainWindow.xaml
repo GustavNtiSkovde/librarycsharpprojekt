@@ -11,7 +11,7 @@
             <TextBlock Text="Email" />
             <TextBox x:Name="Email"></TextBox>
             <TextBlock Text="Password" />
-            <TextBox x:Name="Password"></TextBox>
+            <PasswordBox x:Name="Password"></PasswordBox>
             <Button Content="Log in" Click=" login_Click" />
         </StackPanel>
     </Grid>
