@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Bibliotekssystem.Admin.EditMedia"
+﻿<UserControl x:Class="Bibliotekssystem.Admin.AddMovie"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -29,7 +29,7 @@
                 <StackPanel Grid.Column="0" Margin="10">
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
@@ -38,20 +38,30 @@
 
 
         <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
-            <StackPanel Margin="20">
-                <TextBlock Text="Redigera Media" FontSize="25" FontWeight="Bold"/>
-                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Titel..."/>
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Författare eller Regissör..."/>
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Författare eller Regissör..."/>
-                <TextBlock Text="Mediatyp:" FontSize="12" FontWeight="Bold"/>
-                <RadioButton Content="Bok" GroupName="MediaRole" IsChecked="False" />
-                <RadioButton Content="Ljudbok" GroupName="MediaRole" />
-                <RadioButton Content="Film" GroupName="MediaRole" />
-                <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
-            </StackPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Lägg Till Film" FontSize="25" FontWeight="Bold"/>
+                    <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Titel..."/>
+                    <TextBlock Text="Regissör:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Regissör..."/>
+                    <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Språk..."/>
+                    <TextBlock Text="Längd i minuter:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Längd..."/>
+                    <TextBlock Text="Utgivnings år:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Utgivnings år..."/>
+                    <TextBlock Text="EAN nr:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="EAN..."/>
+                    <TextBlock Text="Sträckkod:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Sträckkod..."/>
+                    <TextBlock Text="Inköps värde:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Inköps värde..."/>
+                    <TextBlock Text="Ersättnings värde:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Ersättnings värde..."/>
+                    <Button Click="EditMovieDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
     </Grid>
 </UserControl>
