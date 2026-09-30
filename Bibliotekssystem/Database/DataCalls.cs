@@ -206,5 +206,139 @@ namespace Bibliotekssystem.Database
             }
             return invoices;
         }
+        // admin commands
+
+        // grab all unpaid invoices to see who owes what
+        public List<Invoice> GetUnpaidInvoices()
+        {
+            List<Invoice> results = new List<Invoice>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "SELECT ID, amount, enddate, FORuser FROM invoice WHERE status = 'Unpaid'";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Invoice inv = new Invoice();
+                        inv.Id = reader.GetInt32("ID");
+                        inv.Amount = reader.GetDecimal("amount");
+                        inv.EndDate = reader.GetDateTime("enddate");
+                        inv.ForUser = reader.GetInt32("FORuser");
+                        inv.Status = "Unpaid";
+
+                        results.Add(inv);
+                    }
+                }
+            }
+            return results;
+        }
+
+        // button to mark as paid
+        public bool PayInvoice(int invoiceId)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "UPDATE invoice SET status = 'Paid' WHERE ID = @id";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", invoiceId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0; // true if it actually updated
+                }
+            }
+        }
+
+        // grab active loans to see who has what and when it is due
+        public List<Loan> GetAllActiveLoans()
+        {
+            List<Loan> results = new List<Loan>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "SELECT ID, loanstartdate, returndate, FORuser, FORcopy FROM loan WHERE status = 'Active'";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Loan l = new Loan();
+                        l.Id = reader.GetInt32("ID");
+                        l.LoanStartDate = reader.GetDateTime("loanstartdate");
+                        l.ReturnDate = reader.GetDateTime("returndate");
+                        l.ForUser = reader.GetInt32("FORuser");
+                        l.ForCopy = reader.GetInt32("FORcopy");
+                        results.Add(l);
+                    }
+                }
+            }
+            return results;
+        }
+
+        // new product
+        public bool AddNewCopy(int mediaId)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "INSERT INTO copy (FORmedia) VALUES (@mediaId)";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@mediaId", mediaId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
+        // remove copy from system
+        public bool RemoveCopy(int copyId)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                // deletes the copy permanently from the database
+                string query = "DELETE FROM copy WHERE ID = @copyId";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@copyId", copyId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
+        // new user 
+        
+        public bool AddNewUser(string email, string password, bool isAdmin)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = "INSERT INTO user (role, email, password) VALUES (@role, @email, @password)";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    // bool to into the exact strings your database uses
+                    string roleChoice = isAdmin ? "Admin" : "Borrower";
+
+                    cmd.Parameters.AddWithValue("@role", roleChoice);
+                    cmd.Parameters.AddWithValue("@email", email);
+                    cmd.Parameters.AddWithValue("@password", password); // hash
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        
     }
-}
+        }
+    }
