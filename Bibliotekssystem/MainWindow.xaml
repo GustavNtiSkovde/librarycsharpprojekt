@@ -7,6 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <StackPanel Margin="20">
+            <TextBlock Text="Email" />
+            <TextBox x:Name="Email"></TextBox>
+            <TextBlock Text="Password" />
+            <PasswordBox x:Name="Password"></PasswordBox>
+            <Button Content="Log in" Click=" login_Click" />
+        </StackPanel>
     </Grid>
 </Window>

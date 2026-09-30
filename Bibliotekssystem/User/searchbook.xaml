@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="Bibliotekssystem.User.searchbook"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Bibliotekssystem.User"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="900">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0">
+            <Grid Background="White">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="10">
+                    <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
+                    <TextBox Width="400" Margin="20" Height="30" Text="Sök..." FontSize="20"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <Button Click="Minalan" Width="80" Height="40" Content="Mina Lån"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <Button Click="Logoutbtn" Width="80" Height="40" Content="Logga ut"/>
+                </StackPanel>
+            </Grid>
+        </Border>      
+        
+        <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
+            <TextBlock Text="x antal media" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="Media:" FontSize="14" FontWeight="Bold"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
+                <CheckBox x:Name="Samplecheckbox" Margin="0,0,0,5">Sample</CheckBox>
+            </ScrollViewer>
+            <TextBlock Text="Kategori:" FontSize="14" FontWeight="Bold"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
+                <CheckBox x:Name="Sample" Margin="0,0,0,5">Sample</CheckBox>
+            </ScrollViewer>
+            <TextBlock Text="Lån:" FontSize="14" FontWeight="Bold"/>
+            <CheckBox x:Name="sample4" Margin="15,0,0,5">Kan lånas</CheckBox>
+            <CheckBox x:Name="sample5" Margin="15,0,0,5">Lånas av mig</CheckBox>
+        </StackPanel>
+        <Border BorderBrush="Black" BorderThickness="1,0,0,0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                <WrapPanel x:Name="MediaWrapPanel">
+                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
+                        <StackPanel>
+                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
+                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
+                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
+                        <StackPanel>
+                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
+                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
+                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
+                        <StackPanel>
+                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
+                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
+                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

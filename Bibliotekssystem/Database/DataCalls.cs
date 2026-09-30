@@ -1,11 +1,32 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Text;
+using MySql.Data.MySqlClient;
 
 namespace Bibliotekssystem.Database
 {
     public class DataCalls
     {
+        public bool VerifyUserLogin(string inputEmail, string inputPassword) {
+            string query = "SELECT COUNT(*) FROM user WHERE email = @Email AND password = @Password";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
+                try {
+                    connection.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, connection)) {
+                        command.Parameters.AddWithValue("@Email", inputEmail);
+                        command.Parameters.AddWithValue("@Password", inputPassword);
+
+                        int userCount = Convert.ToInt32(command.ExecuteScalar());
+                        return userCount > 0;
+                    }
+                }
+                catch (Exception ex) {
+                    Console.WriteLine("Database Connection Error: " + ex.Message);
+                    return false;
+                }
+            }
         private string connectionString = "Server=127.0.0.1;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
 
         public void TestConnection()

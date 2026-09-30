@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="Bibliotekssystem.Admin.EditMedia"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Bibliotekssystem.Admin"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="900">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0">
+            <Grid Background="White">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="10">
+                    <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+
+        <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
+            <StackPanel Margin="20">
+                <TextBlock Text="Redigera Media" FontSize="25" FontWeight="Bold"/>
+                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Titel..."/>
+                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Författare eller Regissör..."/>
+                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Författare eller Regissör..."/>
+                <TextBlock Text="Mediatyp:" FontSize="12" FontWeight="Bold"/>
+                <RadioButton Content="Bok" GroupName="MediaRole" IsChecked="False" />
+                <RadioButton Content="Ljudbok" GroupName="MediaRole" />
+                <RadioButton Content="Film" GroupName="MediaRole" />
+                <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
