@@ -11,21 +11,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.User
+namespace Bibliotekssystem.Admin
 {
     /// <summary>
-    /// Interaction logic for myloans.xaml
+    /// Interaction logic for EditAccount.xaml
     /// </summary>
-    public partial class myloans : UserControl
+    public partial class EditAccount : UserControl
     {
-        public myloans()
+        public EditAccount()
         {
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

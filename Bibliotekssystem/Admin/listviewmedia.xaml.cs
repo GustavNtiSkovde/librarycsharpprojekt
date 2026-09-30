@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.User
+namespace Bibliotekssystem.Admin
 {
     /// <summary>
-    /// Interaction logic for myloans.xaml
+    /// Interaction logic for listviewmedia.xaml
     /// </summary>
-    public partial class myloans : UserControl
+    public partial class listviewmedia : UserControl
     {
-        public myloans()
+        public listviewmedia()
         {
             InitializeComponent();
         }
