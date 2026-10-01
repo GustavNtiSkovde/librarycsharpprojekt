@@ -23,9 +23,15 @@ namespace Bibliotekssystem.User
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Minalan(object sender, RoutedEventArgs e)
         {
 
+        }
+        private void Logoutbt(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+        private void Returnbtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
     }
 }

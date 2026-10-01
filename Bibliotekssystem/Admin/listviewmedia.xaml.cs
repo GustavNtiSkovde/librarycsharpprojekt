@@ -11,21 +11,33 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.Admin
-{
+namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for listviewmedia.xaml
     /// </summary>
-    public partial class listviewmedia : UserControl
-    {
-        public listviewmedia()
-        {
+    public partial class listviewmedia : UserControl {
+        public listviewmedia() {
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
+        private void Logoutbt(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
 
+        private void CreateBookBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void CreateAudioBookBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void CreateMovieBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void DeleteMediaBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using SystemText = System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,16 +11,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.Admin
-{
+namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for AddMovie.xaml
     /// </summary>
-    public partial class AddMovie : UserControl
-    {
-        public AddMovie()
-        {
+    public partial class AddMovie : UserControl {
+        public AddMovie() {
             InitializeComponent();
+        }
+
+        private void Logoutbt(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void EditMovieDoneBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
     }
 }

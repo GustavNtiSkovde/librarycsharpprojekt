@@ -11,16 +11,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.Admin
-{
+namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for EditAccount.xaml
     /// </summary>
-    public partial class EditAccount : UserControl
-    {
-        public EditAccount()
-        {
+    public partial class EditAccount : UserControl {
+        public EditAccount() {
             InitializeComponent();
+        }
+
+        private void Logoutbt(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void EditAccountDoneBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
     }
 }

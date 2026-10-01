@@ -11,26 +11,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bibliotekssystem.Admin
-{
+namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for listviewusers.xaml
     /// </summary>
-    public partial class listviewusers : UserControl
-    {
-        public listviewusers()
-        {
+    public partial class listviewusers : UserControl {
+        public listviewusers() {
             InitializeComponent();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
+        private void Logoutbt(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
+        private void CreateAccountBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
 
+        private void DeleteAccountBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
         }
     }
 }

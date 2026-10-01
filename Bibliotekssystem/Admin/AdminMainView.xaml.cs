@@ -13,10 +13,10 @@ using System.Windows.Shapes;
 
 namespace Bibliotekssystem.Admin {
     /// <summary>
-    /// Interaction logic for AddAudioBook.xaml
+    /// Interaction logic for AdminMainView.xaml
     /// </summary>
-    public partial class AddAudioBook : UserControl {
-        public AddAudioBook() {
+    public partial class AdminMainView : UserControl {
+        public AdminMainView() {
             InitializeComponent();
         }
 
@@ -24,7 +24,11 @@ namespace Bibliotekssystem.Admin {
             // empty handler added to match XAML
         }
 
-        private void EditAudioBookDoneBtn(object sender, RoutedEventArgs e) {
+        private void ViewMediaListBtn(object sender, RoutedEventArgs e) {
+            // empty handler added to match XAML
+        }
+
+        private void ViewUserListBtn(object sender, RoutedEventArgs e) {
             // empty handler added to match XAML
         }
     }
