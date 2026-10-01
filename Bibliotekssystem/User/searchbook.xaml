@@ -30,7 +30,7 @@
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <TextBox Width="400" Margin="20" Height="30" Text="Sök..." FontSize="20"/>
+                    <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged" Width="400" Margin="20" Height="30" FontSize="20"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
                     <Button Click="Minalan" Width="80" Height="40" Content="Mina Lån"/>
@@ -39,53 +39,46 @@
                     <Button Click="Logoutbtn" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
             </Grid>
-        </Border>      
-        
+        </Border>
+
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
             <TextBlock Text="x antal media" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
             <TextBlock Text="Media:" FontSize="14" FontWeight="Bold"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Samplecheckbox" Margin="0,0,0,5">Sample</CheckBox>
+                <CheckBox x:Name="Samplecheckbox" Click="Filter_Click" Margin="0,0,0,5">Sample</CheckBox>
             </ScrollViewer>
             <TextBlock Text="Kategori:" FontSize="14" FontWeight="Bold"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Sample" Margin="0,0,0,5">Sample</CheckBox>
+                <CheckBox x:Name="Sample" Click="Filter_Click" Margin="0,0,0,5">Sample</CheckBox>
             </ScrollViewer>
             <TextBlock Text="Lån:" FontSize="14" FontWeight="Bold"/>
-            <CheckBox x:Name="sample4" Margin="15,0,0,5">Kan lånas</CheckBox>
-            <CheckBox x:Name="sample5" Margin="15,0,0,5">Lånas av mig</CheckBox>
+
+            <!-- Added click events to the checkboxes -->
+            <CheckBox x:Name="FilterAvailable" Click="Filter_Click" Margin="15,0,0,5">Kan lånas</CheckBox>
+            <CheckBox x:Name="FilterMyLoans" Click="Filter_Click" Margin="15,0,0,5">Lånas av mig</CheckBox>
         </StackPanel>
+
         <Border BorderBrush="Black" BorderThickness="1,0,0,0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
-                <WrapPanel x:Name="MediaWrapPanel">
-                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
-                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
-                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
-                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
-                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
-                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
-                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
-                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
-                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
-                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
-                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
-                            <Button Content="Låna" Margin="0,0,0,5" Padding="5"/>
-                            <TextBlock Text="Status=Tillgänglig" Foreground="Green"/>
-                        </StackPanel>
-                    </Border>
-                </WrapPanel>
+                <ItemsControl x:Name="MediaDisplayInfo">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Authors}" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                                    <Button Click="BorrowBtn_Click" Tag="{Binding Id}" Content="Låna" Margin="0,0,0,5" Padding="5"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Border>
     </Grid>

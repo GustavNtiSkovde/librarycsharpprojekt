@@ -1,41 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Bibliotekssystem.Database;
 
 namespace Bibliotekssystem.User
 {
-    /// <summary>
-    /// Interaction logic for searchbook.xaml
-    /// </summary>
     public partial class searchbook : UserControl
     {
+        // db connection
+        private DataCalls db = new DataCalls();
+
         public searchbook()
         {
             InitializeComponent();
+            UpdateList(""); // load all on start
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        // text search
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
+            UpdateList(SearchBox.Text);
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        // checkbox click
+        private void Filter_Click(object sender, RoutedEventArgs e)
         {
-
+            UpdateList(SearchBox.Text);
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        // fetch and filter
+        private void UpdateList(string term)
         {
+            var results = db.SearchMedia(term);
+            MediaDisplayInfo.ItemsSource = results;
+        }
 
+        // borrow btn click
+        private void BorrowBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+
+            if (btn != null && btn.Tag != null)
+            {
+                int mediaId = (int)btn.Tag;
+                int currentUserId = 1;
+
+                var loan = db.BorrowMedia(currentUserId, mediaId);
+
+                if (loan != null)
+                {
+                    MessageBox.Show("Du har lånat boken!", "Success");
+                }
+                else
+                {
+                    MessageBox.Show("No copies available", "Error");
+                }
+            }
+        }
+
+        // jump to my loans safely
+        private void Minalan(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.Content = new Bibliotekssystem.User.myloans();
+        }
+
+        // log out safely
+        private void Logoutbtn(object sender, RoutedEventArgs e)
+        {
+            MainWindow loginWindow = new MainWindow();
+            Application.Current.MainWindow.Content = loginWindow.Content;
         }
     }
 }

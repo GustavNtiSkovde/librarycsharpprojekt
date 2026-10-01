@@ -12,7 +12,8 @@
             <TextBox x:Name="Email"></TextBox>
             <TextBlock Text="Password" />
             <PasswordBox x:Name="Password"></PasswordBox>
-            <Button Content="Log in" Click=" login_Click" />
+
+            <Button Content="Log in" Click="login_Click" />
         </StackPanel>
     </Grid>
 </Window>

@@ -48,11 +48,12 @@
                 <TextBlock Text="Boknamn" FontSize="16" FontWeight="Bold"/>
                 <TextBlock Text="Av Förnamn Efternamn" FontSize="12" FontWeight="Bold"/>
                 <TextBlock Text="Utgivare: Label" FontSize="12" FontWeight="Bold"/>
+
                 <TextBlock Text="Skriv bok nummer:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Boknummer..."/>
+                <TextBox x:Name="MediaIdInput" Width="200" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+
                 <Button Click="Lana" Content="Låna Bok" Width="70" HorizontalAlignment="Right" Margin="10,10,10,0"/>
             </StackPanel>
         </Border>
     </Grid>
 </UserControl>
-

@@ -8,25 +8,34 @@ namespace Bibliotekssystem.Database
 {
     public class DataCalls
     {
-        public bool VerifyUserLogin(string inputEmail, string inputPassword) {
-            string query = "SELECT COUNT(*) FROM user WHERE email = @Email AND password = @Password";
+        // returns role instead of bool
+        public string VerifyUserLogin(string inputEmail, string inputPassword)
+        {
+            string query = "SELECT role FROM user WHERE email = @Email AND password = @Password";
 
-            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
-                try {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
                     connection.Open();
-                    using (MySqlCommand command = new MySqlCommand(query, connection)) {
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
                         command.Parameters.AddWithValue("@Email", inputEmail);
                         command.Parameters.AddWithValue("@Password", inputPassword);
 
-                        int userCount = Convert.ToInt32(command.ExecuteScalar());
-                        return userCount > 0;
+                        object result = command.ExecuteScalar();
+
+                        if (result != null) return result.ToString();
                     }
                 }
-                catch (Exception ex) {
-                    Console.WriteLine("Database Connection Error: " + ex.Message);
-                    return false;
+                catch (Exception ex)
+                {
+                    // Detta poppar upp en ruta med den exakta felkoden från MySQL!
+                    System.Windows.MessageBox.Show("Databas-fel: " + ex.Message, "Krasch");
                 }
             }
+            return null;
+        }
         private string connectionString = "Server=127.0.0.1;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
 
         public void TestConnection()
@@ -53,7 +62,6 @@ namespace Bibliotekssystem.Database
             {
                 conn.Open();
 
-                // SQL query to search media, books, categories, and authors
                 string query = @"
                     SELECT m.ID, m.title, m.FORcategory, c.description AS categoryName, b.isbn,
                            GROUP_CONCAT(CONCAT(p.fname, ' ', p.lname) SEPARATOR ', ') AS authors
@@ -275,13 +283,31 @@ namespace Bibliotekssystem.Database
         }
 
         // grab active loans to see who has what and when it is due
+        // grab active loans to see who has what and when it is due
         public List<Loan> GetAllActiveLoans()
         {
             List<Loan> results = new List<Loan>();
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string query = "SELECT ID, loanstartdate, returndate, FORuser, FORcopy FROM loan WHERE status = 'Active'";
+
+                // updated query to join tables and get title/author
+                string query = @"
+                    SELECT 
+                        l.ID, 
+                        l.loanstartdate, 
+                        l.returndate, 
+                        l.FORuser, 
+                        l.FORcopy,
+                        m.title AS Title, 
+                        p.fname AS FirstName, 
+                        p.lname AS LastName
+                    FROM loan l
+                    JOIN copy c ON l.FORcopy = c.ID
+                    JOIN media m ON c.FORmedia = m.ID
+                    LEFT JOIN personmedia pm ON m.ID = pm.FORmedia
+                    LEFT JOIN person p ON pm.FORperson = p.ID
+                    WHERE l.status = 'Active'";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -291,9 +317,20 @@ namespace Bibliotekssystem.Database
                         Loan l = new Loan();
                         l.Id = reader.GetInt32("ID");
                         l.LoanStartDate = reader.GetDateTime("loanstartdate");
-                        l.ReturnDate = reader.GetDateTime("returndate");
+
+                        // check for null dates
+                        if (!reader.IsDBNull(reader.GetOrdinal("returndate")))
+                        {
+                            l.ReturnDate = reader.GetDateTime("returndate");
+                        }
+
                         l.ForUser = reader.GetInt32("FORuser");
                         l.ForCopy = reader.GetInt32("FORcopy");
+
+                        // grab title and combine first/last name
+                        l.Title = reader.IsDBNull(reader.GetOrdinal("Title")) ? "Okänd Titel" : reader.GetString("Title");
+                        l.Author = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? "Okänd" : $"{reader.GetString("FirstName")} {reader.GetString("LastName")}";
+
                         results.Add(l);
                     }
                 }

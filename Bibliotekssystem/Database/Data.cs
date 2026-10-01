@@ -61,10 +61,12 @@ namespace Bibliotekssystem.Database
     {
         public int Id { get; set; }
         public DateTime LoanStartDate { get; set; } = DateTime.Now;
-        public DateTime? ReturnDate { get; set; } 
-        public string Status { get; set; } = "Aktiv"; 
+        public DateTime? ReturnDate { get; set; }
+        public string Status { get; set; } = "Aktiv";
         public int ForUser { get; set; }
-        public int ForCopy { get; set; } 
+        public int ForCopy { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Author { get; set; } = string.Empty;
     }
 
     public class Invoice

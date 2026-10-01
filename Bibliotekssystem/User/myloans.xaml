@@ -30,45 +30,48 @@
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <TextBox Width="400" Margin="20" Height="30" Text="Sök..." FontSize="20"/>
+                    <TextBox x:Name="SearchBox" Width="400" Margin="20" Height="30" FontSize="20"/>
                 </StackPanel>
+
+                <!-- Knappen bytt till att gå tillbaka till sökningen -->
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Button Click="Minalan" Width="80" Height="40" Content="Mina Lån" Background="LightGreen"/>
+                    <Button Click="GoToSearch" Width="100" Height="40" Content="Sök Böcker" Background="LightGreen"/>
                 </StackPanel>
+
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
             </Grid>
         </Border>
 
+        <!-- Rensat bort alla 'Sample'-kryssrutor -->
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
-            <TextBlock Text="x antal media" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-            <TextBlock Text="Media:" FontSize="14" FontWeight="Bold"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Samplecheckbox" Margin="0,0,0,5">Sample</CheckBox>
-            </ScrollViewer>
-            <TextBlock Text="Kategori:" FontSize="14" FontWeight="Bold"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Sample" Margin="0,0,0,5">Sample</CheckBox>
-            </ScrollViewer>
-            
+            <TextBlock Text="Din Lånehistorik" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
         </StackPanel>
+
         <Border BorderBrush="Black" BorderThickness="1,0,0,0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
-                <WrapPanel x:Name="MediaWrapPanel">
-                    <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="In The Aeroplane Over The Sea" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
-                            <TextBlock Text="Kim Cooper" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
-                            <TextBlock Text="Music History" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
-                            <Button Click="Returnbtn" Content="Lämna tillbaka" Margin="0,0,0,5" Padding="5"/>
-                            <TextBlock Text="dagar Kvar = 12" Foreground="Black"/>
-                        </StackPanel>
-                    </Border>
-                </WrapPanel>
+                <ItemsControl x:Name="LoanDisplayInfo">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Author}" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+                                    <Button Click="Returnbtn" Tag="{Binding ForCopy}" Content="Lämna tillbaka" Margin="0,0,0,5" Padding="5"/>
+                                    <TextBlock Text="{Binding ReturnDate, StringFormat=yyyy-MM-dd}" Foreground="Black"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Border>
     </Grid>
-
-
 </UserControl>
