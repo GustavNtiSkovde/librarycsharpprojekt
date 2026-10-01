@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 
 namespace Bibliotekssystem.Database {
     public class DataCalls {
-        private string connectionString = "Server=127.0.0.1;Port=3307;Database=librarystina;Uid=root;Pwd=admin123;AllowPublicKeyRetrieval=True;";         // database connection string
+        private string connectionString = "Server=127.0.0.1;Port=3306;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
 
         public void TestConnection() {
             try {
