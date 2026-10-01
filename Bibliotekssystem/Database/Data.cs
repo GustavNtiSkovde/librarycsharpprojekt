@@ -65,10 +65,12 @@ namespace Bibliotekssystem.Database
         public string Status { get; set; } = "Aktiv";
         public int ForUser { get; set; }
         public int ForCopy { get; set; }
+
         public string Title { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
-    }
 
+        public string CategoryName { get; set; } = string.Empty;
+    }
     public class Invoice
     {
         public int Id { get; set; }

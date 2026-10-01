@@ -1,39 +1,60 @@
+using Bibliotekssystem.Database;
+using System.Text;
+using System;
 using System.Windows;
 using Bibliotekssystem.Database;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace Bibliotekssystem
 {
     public partial class MainWindow : Window
     {
+        private DataCalls db;
+
         public MainWindow()
         {
             InitializeComponent();
+            db = new DataCalls();
         }
 
         private void login_Click(object sender, RoutedEventArgs e)
         {
-            // get input
-            string email = Email.Text;
-            string password = Password.Password;
+            string username = Email.Text;
+            string password = Password.Password; // Use .Password if using a PasswordBox control
 
-            // check db
-            DataCalls db = new DataCalls();
-            string userRole = db.VerifyUserLogin(email, password);
+            try
+            {
+                var user = db.GetUserByEmailAndPassword(username, password);
 
-            // send to correct page based on role
-            if (userRole == "Admin")
-            {
-                Content = new Bibliotekssystem.Admin.Listviewmedia();
+                if (user != null)
+                {
+                    var role = user.Role ?? string.Empty;
+
+                    if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Content = new Bibliotekssystem.Admin.Listviewmedia();
+                    }
+                    else
+                    {
+                        Content = new Bibliotekssystem.User.searchbook();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Invalid username or password.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            else if (userRole == "Borrower" || userRole == "User")
+            catch (Exception ex)
             {
-                Content = new Bibliotekssystem.User.searchbook();
-            }
-            else
-            {
-                MessageBox.Show("Invalid username or password.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Log for diagnostics and present a clear user-facing error
+                System.Diagnostics.Debug.WriteLine($"Login failed: {ex}");
+                MessageBox.Show(
+                    "Unable to reach the database. Check MySQL server, network and connection string.\n\nDetails: " + ex.Message,
+                    "Database Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
     }
-
-    }
+}

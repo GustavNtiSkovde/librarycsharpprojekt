@@ -1,43 +1,16 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using MySql.Data.MySqlClient;
+using System.Windows;
 
 namespace Bibliotekssystem.Database
 {
     public class DataCalls
     {
-        // returns role instead of bool
-        public string VerifyUserLogin(string inputEmail, string inputPassword)
-        {
-            string query = "SELECT role FROM user WHERE email = @Email AND password = @Password";
+        // Connection string (Update Port/Pwd if you switch between Docker containers)
+        private string connectionString = "Server=127.0.0.1;Port=3306;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";
 
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Email", inputEmail);
-                        command.Parameters.AddWithValue("@Password", inputPassword);
-
-                        object result = command.ExecuteScalar();
-
-                        if (result != null) return result.ToString();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Detta poppar upp en ruta med den exakta felkoden från MySQL!
-                    System.Windows.MessageBox.Show("Databas-fel: " + ex.Message, "Krasch");
-                }
-            }
-            return null;
-        }
-        private string connectionString = "Server=127.0.0.1;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
-
+        // Test connection
         public void TestConnection()
         {
             try
@@ -54,7 +27,75 @@ namespace Bibliotekssystem.Database
             }
         }
 
-        // search
+        // Returns user role ("Admin", "Borrower", etc.) for page redirection
+        public string? VerifyUserLogin(string inputEmail, string inputPassword)
+        {
+            string query = "SELECT role FROM user WHERE email = @Email AND password = @Password";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Email", inputEmail);
+                        command.Parameters.AddWithValue("@Password", inputPassword);
+
+                        object result = command.ExecuteScalar();
+                        if (result != null)
+                        {
+                            return result.ToString();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Databas-fel: " + ex.Message, "Krasch");
+                }
+            }
+            return null;
+        }
+
+        // Retrieves user object if full account context is needed
+        public User? GetUserByEmailAndPassword(string inputEmail, string inputPassword)
+        {
+            string query = "SELECT ID, role, email FROM user WHERE email = @Email AND password = @Password LIMIT 1";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Email", inputEmail);
+                        command.Parameters.AddWithValue("@Password", inputPassword);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                var user = new User
+                                {
+                                    Id = reader.IsDBNull(reader.GetOrdinal("ID")) ? 0 : reader.GetInt32("ID"),
+                                    Role = reader.IsDBNull(reader.GetOrdinal("role")) ? string.Empty : reader.GetString("role"),
+                                    Email = reader.IsDBNull(reader.GetOrdinal("email")) ? string.Empty : reader.GetString("email")
+                                };
+                                return user;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Database Connection Error: " + ex.Message);
+                }
+            }
+            return null;
+        }
+
+        // Search media, books, categories, and authors
         public List<Media> SearchMedia(string searchTerm)
         {
             List<Media> results = new List<Media>();
@@ -84,18 +125,16 @@ namespace Bibliotekssystem.Database
                     {
                         while (reader.Read())
                         {
-                            //grab results and put into media object
-                            Media m = new Media();
-                            m.Id = reader.GetInt32("ID");
-                            m.Title = reader.GetString("title");
-                            m.ForCategory = reader.IsDBNull(reader.GetOrdinal("FORcategory")) ? 0 : reader.GetInt32("FORcategory");
-                            m.Isbn = reader.IsDBNull(reader.GetOrdinal("isbn")) ? null : reader.GetString("isbn");
+                            Media m = new Media
+                            {
+                                Id = reader.GetInt32("ID"),
+                                Title = reader.GetString("title"),
+                                ForCategory = reader.IsDBNull(reader.GetOrdinal("FORcategory")) ? 0 : reader.GetInt32("FORcategory"),
+                                Isbn = reader.IsDBNull(reader.GetOrdinal("isbn")) ? null : reader.GetString("isbn"),
+                                CategoryName = reader.IsDBNull(reader.GetOrdinal("categoryName")) ? "" : reader.GetString("categoryName"),
+                                Authors = reader.IsDBNull(reader.GetOrdinal("authors")) ? "" : reader.GetString("authors")
+                            };
 
-                            // grab the actual string names aksed for in the query
-                            m.CategoryName = reader.IsDBNull(reader.GetOrdinal("categoryName")) ? "" : reader.GetString("categoryName");
-                            m.Authors = reader.IsDBNull(reader.GetOrdinal("authors")) ? "" : reader.GetString("authors");
-
-                            // if match show
                             results.Add(m);
                         }
                     }
@@ -104,13 +143,12 @@ namespace Bibliotekssystem.Database
             return results;
         }
 
-        public Loan BorrowMedia(int userId, int mediaId)
+        public Loan? BorrowMedia(int userId, int mediaId)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
 
-                // loop to see which is available and filter out active loans
                 string findCopyQuery = @"
                     SELECT ID FROM copy 
                     WHERE FORmedia = @mediaId 
@@ -125,7 +163,6 @@ namespace Bibliotekssystem.Database
                     if (result != null) availableCopyId = Convert.ToInt32(result);
                 }
 
-                // if copy found create loan in sql 
                 if (availableCopyId > 0)
                 {
                     DateTime startDate = DateTime.Now;
@@ -143,14 +180,20 @@ namespace Bibliotekssystem.Database
                         cmd.Parameters.AddWithValue("@user", userId);
                         cmd.Parameters.AddWithValue("@copy", availableCopyId);
 
-                        // gets the new id from db
                         int newLoanId = Convert.ToInt32(cmd.ExecuteScalar());
 
-                        return new Loan { Id = newLoanId, ForCopy = availableCopyId, LoanStartDate = startDate };
+                        return new Loan
+                        {
+                            Id = newLoanId,
+                            ForCopy = availableCopyId,
+                            LoanStartDate = startDate,
+                            ReturnDate = dueDate,
+                            ForUser = userId
+                        };
                     }
                 }
             }
-            return null; // if no copy available
+            return null;
         }
 
         public bool ReturnMedia(int copyId)
@@ -158,18 +201,16 @@ namespace Bibliotekssystem.Database
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                // mark it as returned and make copy available again
                 string query = "UPDATE loan SET status = 'Returned' WHERE FORcopy = @copy AND status = 'Active'";
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@copy", copyId);
                     int rowsAffected = cmd.ExecuteNonQuery();
-                    return rowsAffected > 0; // returns true if updated
+                    return rowsAffected > 0;
                 }
             }
         }
 
-        // identifies overdueloan and creates invoice for it, also writes off the copy
         public List<Invoice> ProcessOverdueLoans()
         {
             List<Invoice> invoices = new List<Invoice>();
@@ -177,7 +218,6 @@ namespace Bibliotekssystem.Database
             {
                 conn.Open();
 
-                // loop every loan to find overdue ones and grab replacement value
                 string findOverdueQuery = @"
                     SELECT l.ID as LoanID, l.FORuser, m.replacementvalue 
                     FROM loan l
@@ -203,12 +243,10 @@ namespace Bibliotekssystem.Database
                     }
                 }
 
-                // create invoice and close overdue loans
                 foreach (var data in overdueData)
                 {
-                    decimal penalty = data.Item3 * 1.5m; // 1.5x price
+                    decimal penalty = data.Item3 * 1.5m;
 
-                    // write off loan
                     string updateLoan = "UPDATE loan SET status = 'Overdue' WHERE ID = @loanId";
                     using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn))
                     {
@@ -216,7 +254,6 @@ namespace Bibliotekssystem.Database
                         cmd.ExecuteNonQuery();
                     }
 
-                    // create invoice
                     string insertInvoice = @"
                         INSERT INTO invoice (amount, enddate, status, FORuser) 
                         VALUES (@amount, @enddate, 'Unpaid', @user);
@@ -235,9 +272,7 @@ namespace Bibliotekssystem.Database
             }
             return invoices;
         }
-        // admin commands
 
-        // grab all unpaid invoices to see who owes what
         public List<Invoice> GetUnpaidInvoices()
         {
             List<Invoice> results = new List<Invoice>();
@@ -251,21 +286,20 @@ namespace Bibliotekssystem.Database
                 {
                     while (reader.Read())
                     {
-                        Invoice inv = new Invoice();
-                        inv.Id = reader.GetInt32("ID");
-                        inv.Amount = reader.GetDecimal("amount");
-                        inv.EndDate = reader.GetDateTime("enddate");
-                        inv.ForUser = reader.GetInt32("FORuser");
-                        inv.Status = "Unpaid";
-
-                        results.Add(inv);
+                        results.Add(new Invoice
+                        {
+                            Id = reader.GetInt32("ID"),
+                            Amount = reader.GetDecimal("amount"),
+                            EndDate = reader.GetDateTime("enddate"),
+                            ForUser = reader.GetInt32("FORuser"),
+                            Status = "Unpaid"
+                        });
                     }
                 }
             }
             return results;
         }
 
-        // button to mark as paid
         public bool PayInvoice(int invoiceId)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -277,13 +311,12 @@ namespace Bibliotekssystem.Database
                 {
                     cmd.Parameters.AddWithValue("@id", invoiceId);
                     int rowsAffected = cmd.ExecuteNonQuery();
-                    return rowsAffected > 0; // true if it actually updated
+                    return rowsAffected > 0;
                 }
             }
         }
 
-        // grab active loans to see who has what and when it is due
-        // grab active loans to see who has what and when it is due
+        // Active loans query mapped with Title, Author, and CategoryName
         public List<Loan> GetAllActiveLoans()
         {
             List<Loan> results = new List<Loan>();
@@ -291,7 +324,6 @@ namespace Bibliotekssystem.Database
             {
                 conn.Open();
 
-                // updated query to join tables and get title/author
                 string query = @"
                     SELECT 
                         l.ID, 
@@ -301,10 +333,12 @@ namespace Bibliotekssystem.Database
                         l.FORcopy,
                         m.title AS Title, 
                         p.fname AS FirstName, 
-                        p.lname AS LastName
+                        p.lname AS LastName,
+                        cat.description AS CategoryName
                     FROM loan l
                     JOIN copy c ON l.FORcopy = c.ID
                     JOIN media m ON c.FORmedia = m.ID
+                    LEFT JOIN category cat ON m.FORcategory = cat.sabcode
                     LEFT JOIN personmedia pm ON m.ID = pm.FORmedia
                     LEFT JOIN person p ON pm.FORperson = p.ID
                     WHERE l.status = 'Active'";
@@ -314,22 +348,21 @@ namespace Bibliotekssystem.Database
                 {
                     while (reader.Read())
                     {
-                        Loan l = new Loan();
-                        l.Id = reader.GetInt32("ID");
-                        l.LoanStartDate = reader.GetDateTime("loanstartdate");
+                        Loan l = new Loan
+                        {
+                            Id = reader.GetInt32("ID"),
+                            LoanStartDate = reader.GetDateTime("loanstartdate"),
+                            ForUser = reader.GetInt32("FORuser"),
+                            ForCopy = reader.GetInt32("FORcopy"),
+                            Title = reader.IsDBNull(reader.GetOrdinal("Title")) ? "Okänd Titel" : reader.GetString("Title"),
+                            Author = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? "Okänd" : $"{reader.GetString("FirstName")} {reader.GetString("LastName")}",
+                            CategoryName = reader.IsDBNull(reader.GetOrdinal("CategoryName")) ? "" : reader.GetString("CategoryName")
+                        };
 
-                        // check for null dates
                         if (!reader.IsDBNull(reader.GetOrdinal("returndate")))
                         {
                             l.ReturnDate = reader.GetDateTime("returndate");
                         }
-
-                        l.ForUser = reader.GetInt32("FORuser");
-                        l.ForCopy = reader.GetInt32("FORcopy");
-
-                        // grab title and combine first/last name
-                        l.Title = reader.IsDBNull(reader.GetOrdinal("Title")) ? "Okänd Titel" : reader.GetString("Title");
-                        l.Author = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? "Okänd" : $"{reader.GetString("FirstName")} {reader.GetString("LastName")}";
 
                         results.Add(l);
                     }
@@ -338,7 +371,6 @@ namespace Bibliotekssystem.Database
             return results;
         }
 
-        // new product
         public bool AddNewCopy(int mediaId)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -355,13 +387,11 @@ namespace Bibliotekssystem.Database
             }
         }
 
-        // remove copy from system
         public bool RemoveCopy(int copyId)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                // deletes the copy permanently from the database
                 string query = "DELETE FROM copy WHERE ID = @copyId";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
@@ -373,8 +403,6 @@ namespace Bibliotekssystem.Database
             }
         }
 
-        // new user 
-        
         public bool AddNewUser(string email, string password, bool isAdmin)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -385,18 +413,16 @@ namespace Bibliotekssystem.Database
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
-                    // bool to into the exact strings your database uses
                     string roleChoice = isAdmin ? "Admin" : "Borrower";
 
                     cmd.Parameters.AddWithValue("@role", roleChoice);
                     cmd.Parameters.AddWithValue("@email", email);
-                    cmd.Parameters.AddWithValue("@password", password); // hash
+                    cmd.Parameters.AddWithValue("@password", password);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0;
                 }
             }
-        
-    }
         }
     }
+}
