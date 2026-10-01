@@ -28,7 +28,7 @@ namespace Bibliotekssystem.User
 
         }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
         private void Returnbtn(object sender, RoutedEventArgs e) {
             // empty handler added to match XAML

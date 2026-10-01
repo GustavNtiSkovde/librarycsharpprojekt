@@ -6,8 +6,9 @@ using MySql.Data.MySqlClient;
 
 namespace Bibliotekssystem.Database {
     public class DataCalls {
-        private string connectionString = "Server=127.0.0.1;Port=3306;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
+        private string connectionString = "Server=127.0.0.1;Port=3307;Database=librarystina;Uid=root;Pwd=admin123;AllowPublicKeyRetrieval=True;";
 
+        // Test conection
         public void TestConnection() {
             try {
                 using (MySqlConnection conn = new MySqlConnection(connectionString)) {
@@ -20,6 +21,7 @@ namespace Bibliotekssystem.Database {
             }
         }
 
+        // Verify user
         public bool VerifyUserLogin(string inputEmail, string inputPassword) {
             string query = "SELECT COUNT(*) FROM user WHERE email = @Email AND password = @Password";
 

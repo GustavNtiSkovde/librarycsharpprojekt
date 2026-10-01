@@ -15,13 +15,15 @@ namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for EditAccount.xaml
     /// </summary>
-    public partial class EditAccount : UserControl {
-        public EditAccount() {
+    public partial class CreateAccount : UserControl {
+        public CreateAccount() {
             InitializeComponent();
         }
-
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.AdminMainView();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void EditAccountDoneBtn(object sender, RoutedEventArgs e) {

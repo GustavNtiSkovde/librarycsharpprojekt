@@ -19,12 +19,15 @@ namespace Bibliotekssystem.Admin {
         public listviewusers() {
             InitializeComponent();
         }
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.AdminMainView();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void CreateAccountBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.CreateAccount();
         }
 
         private void DeleteAccountBtn(object sender, RoutedEventArgs e) {

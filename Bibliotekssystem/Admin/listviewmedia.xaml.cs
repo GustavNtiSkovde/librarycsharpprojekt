@@ -19,25 +19,27 @@ namespace Bibliotekssystem.Admin {
         public listviewmedia() {
             InitializeComponent();
         }
-
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.AdminMainView();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void CreateBookBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.AddBook();
         }
 
         private void CreateAudioBookBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.AddAudioBook();
         }
 
         private void CreateMovieBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.AddMovie();
         }
 
         private void DeleteMediaBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            
         }
     }
 }

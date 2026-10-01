@@ -21,15 +21,15 @@ namespace Bibliotekssystem.Admin {
         }
 
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void ViewMediaListBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.listviewmedia();
         }
 
         private void ViewUserListBtn(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            Content = new Bibliotekssystem.Admin.listviewusers();
         }
     }
 }

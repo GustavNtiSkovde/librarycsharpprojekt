@@ -30,7 +30,7 @@ namespace Bibliotekssystem.User
 
         private void Logoutbtn(object sender, RoutedEventArgs e)
         {
-
+            LogoutManager.Logout();
         }
     }
 }

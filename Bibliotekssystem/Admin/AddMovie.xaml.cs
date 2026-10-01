@@ -19,9 +19,11 @@ namespace Bibliotekssystem.Admin {
         public AddMovie() {
             InitializeComponent();
         }
-
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.AdminMainView();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void EditMovieDoneBtn(object sender, RoutedEventArgs e) {

@@ -15,13 +15,15 @@ namespace Bibliotekssystem.Admin {
     /// <summary>
     /// Interaction logic for EditMedia.xaml
     /// </summary>
-    public partial class EditMedia : UserControl {
-        public EditMedia() {
+    public partial class AddBook : UserControl {
+        public AddBook() {
             InitializeComponent();
         }
-
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.AdminMainView();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e) {
-            // empty handler added to match XAML
+            LogoutManager.Logout();
         }
 
         private void EditBookDoneBtn(object sender, RoutedEventArgs e) {
