@@ -30,7 +30,8 @@
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <TextBox Width="400" Margin="20" Height="30" Text="Sök..." FontSize="20"/>
+                    <!-- lade till x:name och textchanged -->
+                    <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged" Width="400" Margin="20" Height="30" FontSize="20"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
@@ -38,17 +39,21 @@
             </Grid>
         </Border>
 
-
         <StackPanel Margin="20" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1">
             <TextBlock Text="Konto Lista" FontSize="25" FontWeight="Bold"/>
             <Button Click="CreateAccountBtn" Content="Skapa Konto" Width="80" HorizontalAlignment="Right" Margin="0,0,30,0"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400" MaxWidth="800">
-                <ListBox x:Name="UserDisplayInfo" Height="30">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="EmailDisplayInfo" Text="sample email" Margin="0,0,15,0"/>
-                        <TextBlock x:Name="RoleDisplayInfo" Text="Role" Margin="0,0,15,0"/>
-                        <Button Click="DeleteAccountBtn" Content="Ta Bort"/>
-                    </StackPanel>
+                <!-- fixade listbox med itemtemplate -->
+                <ListBox x:Name="UserDisplayInfo" MinHeight="300">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="{Binding Email}" Width="250" Margin="0,0,15,0"/>
+                                <TextBlock Text="{Binding Role}" Width="150" Margin="0,0,15,0"/>
+                                <Button Click="DeleteAccountBtn" Content="Ta Bort" Tag="{Binding Id}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
                 </ListBox>
             </ScrollViewer>
         </StackPanel>

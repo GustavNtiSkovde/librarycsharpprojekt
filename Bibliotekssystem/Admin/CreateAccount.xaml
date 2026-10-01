@@ -29,22 +29,27 @@
                 <StackPanel Grid.Column="0" Margin="10">
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-
         <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
             <StackPanel Margin="20">
                 <TextBlock Text="Redigera Konto" FontSize="25" FontWeight="Bold"/>
                 <TextBlock Text="Email:" FontSize="16" FontWeight="Bold"/>
-                <TextBox Text="Email..."/>
+
+                <!-- added names here -->
+                <TextBox x:Name="EmailInput" Text="Email..."/>
+
                 <TextBlock Text="Roll" FontSize="16" FontWeight="Bold"/>
-                <RadioButton Content="Användare" GroupName="AccountRole" IsChecked="False" />
-                <RadioButton Content="Admin" GroupName="AccountRole" />
+
+                <!-- added names here -->
+                <RadioButton x:Name="RoleUser" Content="Användare" GroupName="AccountRole" IsChecked="True" />
+                <RadioButton x:Name="RoleAdmin" Content="Admin" GroupName="AccountRole" />
+
                 <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
             </StackPanel>
         </Border>

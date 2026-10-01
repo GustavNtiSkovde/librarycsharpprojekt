@@ -16,55 +16,64 @@ namespace Bibliotekssystem.Admin
         {
             InitializeComponent();
 
-            // load all media on start
+            // load all media on start[cite: 19]
             UpdateList("");
         }
 
-        // updates list when typing
+        // updates list when typing[cite: 19]
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateList(SearchBox.Text);
         }
 
-        // grab data from db and update list
+        // grab data from db and update list[cite: 19]
         private void UpdateList(string term)
         {
             var results = db.SearchMedia(term);
             MediaDisplayInfo.ItemsSource = results;
         }
 
-        // delete btn click
+        // delete media click[cite: 19]
         private void DeleteMediaBtn_Click(object sender, RoutedEventArgs e)
         {
             Button btn = sender as Button;
 
             if (btn != null && btn.Tag != null)
             {
-                // get id from button tag
+                // get id from button tag[cite: 19]
                 int mediaId = (int)btn.Tag;
 
                 MessageBoxResult result = MessageBox.Show($"Are you sure you want to delete media ID {mediaId}?", "Confirm", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // add db.DeleteMedia(mediaId) here later
+                    // delete from db
+                    if (db.DeleteMedia(mediaId))
+                    {
+                        MessageBox.Show("Media borttagen!", "Success");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Kunde inte ta bort media.", "Error");
+                    }
 
-                    // refresh list
+                    // refresh list[cite: 19]
                     UpdateList(SearchBox.Text);
                 }
             }
         }
 
-        // open create media view
+        // open create/edit media view[cite: 19]
         private void CreateMediaBtn(object sender, RoutedEventArgs e)
         {
-
+            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.EditMedia();
         }
 
-        // logout
+        // logout[cite: 19]
         private void Logoutbt(object sender, RoutedEventArgs e)
         {
-
+            MainWindow loginWindow = new MainWindow();
+            Application.Current.MainWindow.Content = loginWindow.Content;
         }
     }
 }

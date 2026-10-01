@@ -42,20 +42,47 @@
         </Border>
 
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
-            <TextBlock Text="x antal media" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-            <TextBlock Text="Media:" FontSize="14" FontWeight="Bold"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Samplecheckbox" Click="Filter_Click" Margin="0,0,0,5">Sample</CheckBox>
-            </ScrollViewer>
-            <TextBlock Text="Kategori:" FontSize="14" FontWeight="Bold"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200" MaxWidth="200">
-                <CheckBox x:Name="Sample" Click="Filter_Click" Margin="0,0,0,5">Sample</CheckBox>
-            </ScrollViewer>
-            <TextBlock Text="Lån:" FontSize="14" FontWeight="Bold"/>
+            <TextBlock Text="Filtrera sökning" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
 
-            <!-- Added click events to the checkboxes -->
+            <TextBlock Text="Media:" FontSize="14" FontWeight="Bold" Margin="0,10,0,0"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="80" MaxWidth="200">
+                <StackPanel>
+                    <!-- types -->
+                    <CheckBox x:Name="TypeBook" Content="Böcker" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="TypeMovie" Content="Filmer" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="TypeAudio" Content="Ljudböcker" Click="Filter_Click" Margin="0,0,0,5"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <TextBlock Text="Kategori:" FontSize="14" FontWeight="Bold" Margin="0,10,0,0"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150" MaxWidth="200">
+                <StackPanel>
+                    <!-- all 20 categories -->
+                    <CheckBox x:Name="CatA" Content="A - Allmänt" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatB" Content="B - Filosofi/Psykologi" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatC" Content="C - Religion" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatD" Content="D - Historia" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatE" Content="E - Geografi" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatF" Content="F - Språk" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatG" Content="G - Litteratur" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatH" Content="H - Konst/Musik" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatI" Content="I - Arkeologi" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatJ" Content="J - Statskunskap" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatK" Content="K - Rätts/Samhälle" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatL" Content="L - Ekonomi" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatM" Content="M - Sociologi" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatN" Content="N - Pedagogik" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatO" Content="O - Matematik" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatP" Content="P - Naturvetenskap" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatQ" Content="Q - Medicin" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatR" Content="R - Teknik/Hantverk" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatS" Content="S - Lantbruk" Click="Filter_Click" Margin="0,0,0,5"/>
+                    <CheckBox x:Name="CatT" Content="T - Hushåll" Click="Filter_Click" Margin="0,0,0,5"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <TextBlock Text="Lån:" FontSize="14" FontWeight="Bold" Margin="0,10,0,0"/>
             <CheckBox x:Name="FilterAvailable" Click="Filter_Click" Margin="15,0,0,5">Kan lånas</CheckBox>
-            <CheckBox x:Name="FilterMyLoans" Click="Filter_Click" Margin="15,0,0,5">Lånas av mig</CheckBox>
         </StackPanel>
 
         <Border BorderBrush="Black" BorderThickness="1,0,0,0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1">
@@ -71,6 +98,8 @@
                             <Border Width="200" Margin="10" Padding="12" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
                                 <StackPanel>
                                     <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <!-- shows type here -->
+                                    <TextBlock Text="{Binding MediaType}" FontSize="12" FontWeight="Bold" Foreground="DarkSlateBlue" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding Authors}" FontSize="12" Foreground="DimGray" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
                                     <Button Click="BorrowBtn_Click" Tag="{Binding Id}" Content="Låna" Margin="0,0,0,5" Padding="5"/>

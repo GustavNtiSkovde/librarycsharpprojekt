@@ -29,27 +29,35 @@
                 <StackPanel Grid.Column="0" Margin="10">
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-
         <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
             <StackPanel Margin="20">
                 <TextBlock Text="Redigera Media" FontSize="25" FontWeight="Bold"/>
-                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Titel..."/>
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Författare eller Regissör..."/>
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Författare eller Regissör..."/>
-                <TextBlock Text="Mediatyp:" FontSize="12" FontWeight="Bold"/>
-                <RadioButton Content="Bok" GroupName="MediaRole" IsChecked="False" />
-                <RadioButton Content="Ljudbok" GroupName="MediaRole" />
-                <RadioButton Content="Film" GroupName="MediaRole" />
+
+                <!-- added id box so db knows what to change -->
+                <TextBlock Text="Media ID:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBox x:Name="IdInput" Text="1"/>
+
+                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBox x:Name="TitleInput" Text="Titel..."/>
+
+                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBox x:Name="Creator1Input" Text="Författare eller Regissör..."/>
+
+                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBox x:Name="Creator2Input" Text="Författare eller Regissör..."/>
+
+                <TextBlock Text="Mediatyp:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
+                <RadioButton x:Name="TypeBook" Content="Bok" GroupName="MediaRole" IsChecked="True" />
+                <RadioButton x:Name="TypeAudio" Content="Ljudbok" GroupName="MediaRole" />
+                <RadioButton x:Name="TypeMovie" Content="Film" GroupName="MediaRole" />
+
                 <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
             </StackPanel>
         </Border>
