@@ -4,11 +4,11 @@ using Bibliotekssystem.Database;
 
 namespace Bibliotekssystem.Admin
 {
-    public partial class EditAccount : UserControl
+    public partial class CreateAccount : UserControl
     {
         private DataCalls db = new DataCalls();
 
-        public EditAccount()
+        public CreateAccount()
         {
             InitializeComponent();
         }
@@ -60,6 +60,9 @@ namespace Bibliotekssystem.Admin
             }
         }
 
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.MainWindowAdmin();
+        }
         private void Logoutbt(object sender, RoutedEventArgs e)
         {
             MainWindow loginWindow = new MainWindow();

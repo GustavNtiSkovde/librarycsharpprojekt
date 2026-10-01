@@ -32,7 +32,7 @@ namespace Bibliotekssystem
 
                     if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
                     {
-                        Content = new Bibliotekssystem.Admin.Listviewmedia();
+                        Content = new Bibliotekssystem.Admin.MainWindowAdmin();
                     }
                     else
                     {

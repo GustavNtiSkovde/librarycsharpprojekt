@@ -45,8 +45,8 @@
                     <TextBlock Text="Lägg Till Ljudbok" FontSize="25" FontWeight="Bold"/>
                     <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
                     <TextBox Text="Titel..."/>
-                    <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold"/>
-                    <TextBox Text="Författare eller Regissör..."/>
+                    <TextBlock Text="Författare:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="Författare..."/>
                     <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
                     <TextBox Text="Språk..."/>
                     <TextBlock Text="Längd i minuter:" FontSize="12" FontWeight="Bold"/>

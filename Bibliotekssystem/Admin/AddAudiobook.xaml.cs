@@ -28,7 +28,8 @@ namespace Bibliotekssystem.Admin
         }
         private void Logoutbt(object sender, RoutedEventArgs e)
         {
-            LogoutManager.Logout();
+            MainWindow loginWindow = new MainWindow();
+            Application.Current.MainWindow.Content = loginWindow.Content;
         }
 
         private void EditAudioBookDoneBtn(object sender, RoutedEventArgs e)

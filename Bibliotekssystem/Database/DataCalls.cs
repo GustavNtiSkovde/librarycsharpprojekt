@@ -8,7 +8,7 @@ namespace Bibliotekssystem.Database
     public class DataCalls
     {
         // db connection
-        private string connectionString = "Server=127.0.0.1;Port=3306;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";
+        private string connectionString = "Server=127.0.0.1;Port=3307;Database=librarystina;Uid=root;Pwd=admin123;AllowPublicKeyRetrieval=True;";
 
         public void TestConnection()
         {

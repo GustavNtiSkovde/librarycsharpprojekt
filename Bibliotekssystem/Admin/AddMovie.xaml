@@ -48,6 +48,8 @@
                     <TextBlock Text="Regissör:" FontSize="12" FontWeight="Bold"/>
                     <TextBox Text="Regissör..."/>
                     <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
+                    <TextBox Text="SAB"/>
+                    <TextBlock Text="SAB Kategori" FontSize="12" FontWeight="Bold"/>
                     <TextBox Text="Språk..."/>
                     <TextBlock Text="Längd i minuter:" FontSize="12" FontWeight="Bold"/>
                     <TextBox Text="Längd..."/>

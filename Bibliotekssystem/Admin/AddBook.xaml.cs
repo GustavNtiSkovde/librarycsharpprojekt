@@ -1,9 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-
-message.txt
-4 KB
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -33,6 +28,8 @@ namespace Bibliotekssystem.Admin
         }
         private void Logoutbt(object sender, RoutedEventArgs e)
         {
+            MainWindow loginWindow = new MainWindow();
+            Application.Current.MainWindow.Content = loginWindow.Content;
         }
 
         private void EditBookDoneBtn(object sender, RoutedEventArgs e)

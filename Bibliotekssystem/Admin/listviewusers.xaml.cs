@@ -54,7 +54,7 @@ namespace Bibliotekssystem.Admin
         // gå till skapa/redigera konto
         private void CreateAccountBtn(object sender, RoutedEventArgs e)
         {
-            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.EditAccount();
+            Content = new Bibliotekssystem.Admin.CreateAccount();
         }
 
         // logga ut
@@ -62,6 +62,9 @@ namespace Bibliotekssystem.Admin
         {
             MainWindow loginWindow = new MainWindow();
             Application.Current.MainWindow.Content = loginWindow.Content;
+        }
+        private void StartSideBtn(object sender, RoutedEventArgs e) {
+            Content = new Bibliotekssystem.Admin.MainWindowAdmin();
         }
     }
 }

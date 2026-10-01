@@ -48,6 +48,8 @@
                 <TextBox Text="Författare..."/>
                 <TextBlock Text="Publicerare:" FontSize="12" FontWeight="Bold"/>
                 <TextBox Text="Publicerare..."/>
+                <TextBox Text="SAB"/>
+                <TextBlock Text="SAB Kategori" FontSize="12" FontWeight="Bold"/>
                 <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
                 <TextBox Text="Språk..."/>
                 <TextBlock Text="Utgivnings år:" FontSize="12" FontWeight="Bold"/>
