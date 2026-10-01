@@ -29,7 +29,6 @@
                 <StackPanel Grid.Column="0" Margin="10">
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
-
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
@@ -38,19 +37,22 @@
 
         <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
             <StackPanel Margin="20">
-                <TextBlock Text="Redigera Konto" FontSize="25" FontWeight="Bold"/>
-                <TextBlock Text="Email:" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="Hantera Konto" FontSize="25" FontWeight="Bold"/>
 
-                <!-- added names here -->
-                <TextBox x:Name="EmailInput" Text="Email..."/>
+                <TextBlock Text="Email:" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+                <TextBox x:Name="EmailInput" Text="" Height="25"/>
 
-                <TextBlock Text="Roll" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="Lösenord:" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+                <TextBox x:Name="PasswordInput" Text="" Height="25"/>
 
-                <!-- added names here -->
-                <RadioButton x:Name="RoleUser" Content="Användare" GroupName="AccountRole" IsChecked="True" />
-                <RadioButton x:Name="RoleAdmin" Content="Admin" GroupName="AccountRole" />
+                <TextBlock Text="Roll:" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+                <RadioButton x:Name="RoleUser" Content="Användare" GroupName="AccountRole" IsChecked="True" Margin="0,2"/>
+                <RadioButton x:Name="RoleAdmin" Content="Admin" GroupName="AccountRole" Margin="0,2"/>
 
-                <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                    <Button Click="CreateAccountBtn" Content="Skapa Ny" Width="80" Margin="0,0,10,0" Padding="5"/>
+                    <Button Click="EditAccountDoneBtn" Content="Ändra Lösen" Width="90" Padding="5"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>

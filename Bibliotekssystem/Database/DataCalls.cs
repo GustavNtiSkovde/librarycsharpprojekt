@@ -432,8 +432,7 @@ namespace Bibliotekssystem.Database
                 }
             }
         }
-        // delete media from db
-        // ta bort media, kopior, lån och alla kopplingar
+   
         public bool DeleteMedia(int mediaId)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -443,49 +442,42 @@ namespace Bibliotekssystem.Database
                 {
                     try
                     {
-                        // 1. ta bort lån kopplade till kopiorna först
                         using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORcopy IN (SELECT ID FROM copy WHERE FORmedia = @id)", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 2. ta bort kopior kopplade till median
                         using (var cmd = new MySqlCommand("DELETE FROM copy WHERE FORmedia = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 3. ta bort från bok-tabellen
                         using (var cmd = new MySqlCommand("DELETE FROM book WHERE ID = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 4. ta bort från film-tabellen
                         using (var cmd = new MySqlCommand("DELETE FROM movie WHERE ID = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 5. ta bort från ljudbok-tabellen
                         using (var cmd = new MySqlCommand("DELETE FROM audiobook WHERE ID = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 6. ta bort personkopplingar
                         using (var cmd = new MySqlCommand("DELETE FROM personmedia WHERE FORmedia = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 7. ta bort själva median
                         using (var cmd = new MySqlCommand("DELETE FROM media WHERE ID = @id", conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", mediaId);
@@ -537,9 +529,131 @@ namespace Bibliotekssystem.Database
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("DELETE FROM user WHERE ID = @id", conn))
+                using (var transaction = conn.BeginTransaction())
                 {
-                    cmd.Parameters.AddWithValue("@id", userId);
+                    try
+                    {
+                        using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORuser = @id", conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@id", userId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new MySqlCommand("DELETE FROM invoice WHERE FORuser = @id", conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@id", userId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new MySqlCommand("DELETE FROM user WHERE ID = @id", conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@id", userId);
+                            int rows = cmd.ExecuteNonQuery();
+
+                            transaction.Commit();
+                            return rows > 0;
+                        }
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        // skapa ny media i databasen
+        public bool CreateMedia(string title, int categoryCode, string mediaType)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        string insertMedia = "INSERT INTO media (title, FORcategory, replacementvalue) VALUES (@title, @cat, 150.00); SELECT LAST_INSERT_ID();";
+                        int mediaId = 0;
+
+                        using (var cmd = new MySqlCommand(insertMedia, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@title", title);
+                            cmd.Parameters.AddWithValue("@cat", categoryCode);
+                            mediaId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        if (mediaType == "Bok")
+                        {
+                            using (var cmd = new MySqlCommand("INSERT INTO book (ID, isbn) VALUES (@id, '9789100000000')", conn, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@id", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else if (mediaType == "Film")
+                        {
+                            using (var cmd = new MySqlCommand("INSERT INTO movie (ID) VALUES (@id)", conn, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@id", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else if (mediaType == "Ljudbok")
+                        {
+                            using (var cmd = new MySqlCommand("INSERT INTO audiobook (ID) VALUES (@id)", conn, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@id", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        // skapa en standardkopia direkt
+                        using (var cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@id)", conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@id", mediaId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        // skapa konto med lösenord
+        public bool CreateUserAccount(string email, string password, bool isAdmin)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "INSERT INTO user (role, email, password) VALUES (@role, @email, @password)";
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@role", isAdmin ? "Admin" : "Borrower");
+                    cmd.Parameters.AddWithValue("@email", email);
+                    cmd.Parameters.AddWithValue("@password", password);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        // ändra lösenord för användare
+        public bool UpdateUserPassword(string email, string newPassword)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = "UPDATE user SET password = @pwd WHERE email = @email";
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@pwd", newPassword);
+                    cmd.Parameters.AddWithValue("@email", email);
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }

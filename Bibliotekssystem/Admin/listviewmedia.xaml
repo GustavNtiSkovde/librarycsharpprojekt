@@ -30,7 +30,6 @@
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <!--Connect with C# code -->
                     <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged" Width="400" Margin="20" Height="30" FontSize="20"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
@@ -39,10 +38,15 @@
             </Grid>
         </Border>
 
-
         <StackPanel Margin="20" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1">
             <TextBlock Text="Media Lista" FontSize="25" FontWeight="Bold"/>
-            <Button Click="CreateMediaBtn" Content="Lägg Till Media" Width="90" HorizontalAlignment="Right" Margin="0,0,30,0"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,30,0">
+                <Button Click="GoToUsersBtn" Content="Användare" Width="90" Margin="0,0,10,0" Padding="5"/>
+                <Button Click="CreateAccountBtn" Content="Skapa Konto" Width="95" Margin="0,0,10,0" Padding="5"/>
+                <Button Click="CreateMediaBtn" Content="Lägg Till Media" Width="100" Padding="5"/>
+            </StackPanel>
+
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400" MaxWidth="800">
                 <ListBox x:Name="MediaDisplayInfo" MinHeight="300">
                     <ListBox.ItemTemplate>
@@ -61,4 +65,4 @@
             </ScrollViewer>
         </StackPanel>
     </Grid>
-</UserControl>
+</UserControl>            

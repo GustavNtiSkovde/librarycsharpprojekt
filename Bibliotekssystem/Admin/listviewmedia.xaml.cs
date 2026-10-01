@@ -66,7 +66,7 @@ namespace Bibliotekssystem.Admin
         // open create/edit media view[cite: 19]
         private void CreateMediaBtn(object sender, RoutedEventArgs e)
         {
-            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.EditMedia();
+            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.MainWindowAdmin();
         }
 
         // logout[cite: 19]
@@ -74,6 +74,17 @@ namespace Bibliotekssystem.Admin
         {
             MainWindow loginWindow = new MainWindow();
             Application.Current.MainWindow.Content = loginWindow.Content;
+        }
+        // hoppa till användarlistan
+        private void GoToUsersBtn(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.listviewusers();
+        }
+
+        // hoppa till skapa/redigera konto
+        private void CreateAccountBtn(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.EditAccount();
         }
     }
 }

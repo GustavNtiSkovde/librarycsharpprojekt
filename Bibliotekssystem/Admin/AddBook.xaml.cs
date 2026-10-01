@@ -1,0 +1,43 @@
+﻿using System.Windows;
+using System.Windows.Controls;
+
+message.txt
+4 KB
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace Bibliotekssystem.Admin
+{
+    /// <summary>
+    /// Interaction logic for EditMedia.xaml
+    /// </summary>
+    public partial class AddBook : UserControl
+    {
+        public AddBook()
+        {
+            InitializeComponent();
+        }
+        private void StartSideBtn(object sender, RoutedEventArgs e)
+        {
+            Content = new Bibliotekssystem.Admin.MainWindowAdmin();
+        }
+        private void Logoutbt(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void EditBookDoneBtn(object sender, RoutedEventArgs e)
+        {
+            // empty handler added to match XAML
+        }
+    }
+}

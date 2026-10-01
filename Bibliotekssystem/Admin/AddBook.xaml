@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Bibliotekssystem.Admin.EditMedia"
+﻿<UserControl x:Class="Bibliotekssystem.Admin.AddBook"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -29,36 +29,38 @@
                 <StackPanel Grid.Column="0" Margin="10">
                     <TextBlock Text="Stina's Library" FontSize="30" FontWeight="UltraBold" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
-
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <Button Click="StartSideBtn" Width="80" Height="40" Content="Startsida"/>
+                </StackPanel>
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
                     <Button Click="Logoutbt" Width="80" Height="40" Content="Logga ut"/>
                 </StackPanel>
             </Grid>
         </Border>
 
+
         <Border BorderBrush="Black" BorderThickness="1,0,1,0" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
             <StackPanel Margin="20">
-                <TextBlock Text="Redigera Media" FontSize="25" FontWeight="Bold"/>
-
-                <!-- added id box so db knows what to change -->
-                <TextBlock Text="Media ID:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
-                <TextBox x:Name="IdInput" Text="1"/>
-
-                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
-                <TextBox x:Name="TitleInput" Text="Titel..."/>
-
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
-                <TextBox x:Name="Creator1Input" Text="Författare eller Regissör..."/>
-
-                <TextBlock Text="Skapare:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
-                <TextBox x:Name="Creator2Input" Text="Författare eller Regissör..."/>
-
-                <TextBlock Text="Mediatyp:" FontSize="12" FontWeight="Bold" Margin="0,10,0,0"/>
-                <RadioButton x:Name="TypeBook" Content="Bok" GroupName="MediaRole" IsChecked="True" />
-                <RadioButton x:Name="TypeAudio" Content="Ljudbok" GroupName="MediaRole" />
-                <RadioButton x:Name="TypeMovie" Content="Film" GroupName="MediaRole" />
-
-                <Button Click="EditAccountDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                <TextBlock Text="Lägg Till Bok" FontSize="25" FontWeight="Bold"/>
+                <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Titel..."/>
+                <TextBlock Text="Författare:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Författare..."/>
+                <TextBlock Text="Publicerare:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Publicerare..."/>
+                <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Språk..."/>
+                <TextBlock Text="Utgivnings år:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Utgivnings år..."/>
+                <TextBlock Text="ISBN nr:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="ISBN..."/>
+                <TextBlock Text="Sträckkod:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Sträckkod..."/>
+                <TextBlock Text="Inköps värde:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Inköps värde..."/>
+                <TextBlock Text="Ersättnings värde:" FontSize="12" FontWeight="Bold"/>
+                <TextBox Text="Ersättnings värde..."/>
+                <Button Click="EditBookDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
             </StackPanel>
         </Border>
     </Grid>

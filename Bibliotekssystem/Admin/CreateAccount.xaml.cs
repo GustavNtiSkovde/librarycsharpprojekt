@@ -13,24 +13,53 @@ namespace Bibliotekssystem.Admin
             InitializeComponent();
         }
 
-        // update user and go back
+        // skapa nytt konto
+        private void CreateAccountBtn(object sender, RoutedEventArgs e)
+        {
+            string email = EmailInput.Text;
+            string pwd = PasswordInput.Text;
+            bool isAdmin = RoleAdmin.IsChecked == true;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(pwd))
+            {
+                MessageBox.Show("Fyll i både email och lösenord!", "Fel");
+                return;
+            }
+
+            if (db.CreateUserAccount(email, pwd, isAdmin))
+            {
+                MessageBox.Show("Konto skapat!", "Success");
+                Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.listviewusers();
+            }
+            else
+            {
+                MessageBox.Show("Kunde inte skapa konto.", "Error");
+            }
+        }
+
+        // uppdatera lösenord / roll
         private void EditAccountDoneBtn(object sender, RoutedEventArgs e)
         {
             string email = EmailInput.Text;
+            string pwd = PasswordInput.Text;
             bool isAdmin = RoleAdmin.IsChecked == true;
+
+            if (!string.IsNullOrWhiteSpace(pwd))
+            {
+                db.UpdateUserPassword(email, pwd);
+            }
 
             if (db.UpdateUserRole(email, isAdmin))
             {
                 MessageBox.Show("Konto uppdaterat!", "Success");
-                Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.Listviewmedia();
+                Application.Current.MainWindow.Content = new Bibliotekssystem.Admin.listviewusers();
             }
             else
             {
-                MessageBox.Show("Kunde inte hitta en användare med den emailen.", "Error");
+                MessageBox.Show("Kunde inte hitta användaren.", "Error");
             }
         }
 
-        // logout
         private void Logoutbt(object sender, RoutedEventArgs e)
         {
             MainWindow loginWindow = new MainWindow();
