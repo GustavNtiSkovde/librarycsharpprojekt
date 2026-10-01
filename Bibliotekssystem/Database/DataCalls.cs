@@ -4,10 +4,22 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace Bibliotekssystem.Database
-{
-    public class DataCalls
-    {
+namespace Bibliotekssystem.Database {
+    public class DataCalls {
+        private string connectionString = "Server=127.0.0.1;Port=3307;Database=librarystina;Uid=root;Pwd=admin123;AllowPublicKeyRetrieval=True;";         // database connection string
+
+        public void TestConnection() {
+            try {
+                using (MySqlConnection conn = new MySqlConnection(connectionString)) {
+                    conn.Open();
+                    Console.WriteLine("Connected to the database.");
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine("Failed: " + ex.Message);
+            }
+        }
+
         public bool VerifyUserLogin(string inputEmail, string inputPassword) {
             string query = "SELECT COUNT(*) FROM user WHERE email = @Email AND password = @Password";
 
@@ -27,30 +39,40 @@ namespace Bibliotekssystem.Database
                     return false;
                 }
             }
-        private string connectionString = "Server=127.0.0.1;Database=librarystina;Uid=root;Pwd=1234;AllowPublicKeyRetrieval=True;";         // database connection string
+        }
+        // Retrives the information about the user to get the role to choose what view the use get aka admin or user
+        public User? GetUserByEmailAndPassword(string inputEmail, string inputPassword) {
+            string query = "SELECT ID, role, email FROM user WHERE email = @Email AND password = @Password LIMIT 1";
 
-        public void TestConnection()
-        {
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
-                {
-                    conn.Open();
-                    Console.WriteLine("Connected to the database.");
+            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
+                try {
+                    connection.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, connection)) {
+                        command.Parameters.AddWithValue("@Email", inputEmail);
+                        command.Parameters.AddWithValue("@Password", inputPassword);
+
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                var user = new User();
+                                user.Id = reader.IsDBNull(reader.GetOrdinal("ID")) ? 0 : reader.GetInt32("ID");
+                                user.Role = reader.IsDBNull(reader.GetOrdinal("role")) ? string.Empty : reader.GetString("role");
+                                user.Email = reader.IsDBNull(reader.GetOrdinal("email")) ? string.Empty : reader.GetString("email");
+                                return user;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    Console.WriteLine("Database Connection Error: " + ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Failed: " + ex.Message);
-            }
+            return null;
         }
 
         // search
-        public List<Media> SearchMedia(string searchTerm)
-        {
+        public List<Media> SearchMedia(string searchTerm) {
             List<Media> results = new List<Media>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 // SQL query to search media, books, categories, and authors
@@ -69,13 +91,10 @@ namespace Bibliotekssystem.Database
                        OR p.lname LIKE @search
                     GROUP BY m.ID";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@search", "%" + searchTerm + "%");
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             //grab results and put into media object
                             Media m = new Media();
                             m.Id = reader.GetInt32("ID");
@@ -96,10 +115,8 @@ namespace Bibliotekssystem.Database
             return results;
         }
 
-        public Loan BorrowMedia(int userId, int mediaId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public Loan BorrowMedia(int userId, int mediaId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 // loop to see which is available and filter out active loans
@@ -110,16 +127,14 @@ namespace Bibliotekssystem.Database
                     LIMIT 1";
 
                 int availableCopyId = 0;
-                using (MySqlCommand cmd = new MySqlCommand(findCopyQuery, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(findCopyQuery, conn)) {
                     cmd.Parameters.AddWithValue("@mediaId", mediaId);
                     object result = cmd.ExecuteScalar();
                     if (result != null) availableCopyId = Convert.ToInt32(result);
                 }
 
                 // if copy found create loan in sql 
-                if (availableCopyId > 0)
-                {
+                if (availableCopyId > 0) {
                     DateTime startDate = DateTime.Now;
                     DateTime dueDate = startDate.AddDays(21); // 3 weeks 
 
@@ -128,8 +143,7 @@ namespace Bibliotekssystem.Database
                         VALUES (@start, @end, 'Active', @user, @copy);
                         SELECT LAST_INSERT_ID();";
 
-                    using (MySqlCommand cmd = new MySqlCommand(insertLoanQuery, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(insertLoanQuery, conn)) {
                         cmd.Parameters.AddWithValue("@start", startDate);
                         cmd.Parameters.AddWithValue("@end", dueDate);
                         cmd.Parameters.AddWithValue("@user", userId);
@@ -145,15 +159,12 @@ namespace Bibliotekssystem.Database
             return null; // if no copy available
         }
 
-        public bool ReturnMedia(int copyId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool ReturnMedia(int copyId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 // mark it as returned and make copy available again
                 string query = "UPDATE loan SET status = 'Returned' WHERE FORcopy = @copy AND status = 'Active'";
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@copy", copyId);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0; // returns true if updated
@@ -162,11 +173,9 @@ namespace Bibliotekssystem.Database
         }
 
         // identifies overdueloan and creates invoice for it, also writes off the copy
-        public List<Invoice> ProcessOverdueLoans()
-        {
+        public List<Invoice> ProcessOverdueLoans() {
             List<Invoice> invoices = new List<Invoice>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 // loop every loan to find overdue ones and grab replacement value
@@ -179,13 +188,10 @@ namespace Bibliotekssystem.Database
 
                 List<Tuple<int, int, decimal>> overdueData = new List<Tuple<int, int, decimal>>();
 
-                using (MySqlCommand cmd = new MySqlCommand(findOverdueQuery, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(findOverdueQuery, conn)) {
                     cmd.Parameters.AddWithValue("@now", DateTime.Now.Date);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             overdueData.Add(new Tuple<int, int, decimal>(
                                 reader.GetInt32("LoanID"),
                                 reader.GetInt32("FORuser"),
@@ -196,14 +202,12 @@ namespace Bibliotekssystem.Database
                 }
 
                 // create invoice and close overdue loans
-                foreach (var data in overdueData)
-                {
+                foreach (var data in overdueData) {
                     decimal penalty = data.Item3 * 1.5m; // 1.5x price
 
                     // write off loan
                     string updateLoan = "UPDATE loan SET status = 'Overdue' WHERE ID = @loanId";
-                    using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn)) {
                         cmd.Parameters.AddWithValue("@loanId", data.Item1);
                         cmd.ExecuteNonQuery();
                     }
@@ -214,8 +218,7 @@ namespace Bibliotekssystem.Database
                         VALUES (@amount, @enddate, 'Unpaid', @user);
                         SELECT LAST_INSERT_ID();";
 
-                    using (MySqlCommand cmd = new MySqlCommand(insertInvoice, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(insertInvoice, conn)) {
                         cmd.Parameters.AddWithValue("@amount", penalty);
                         cmd.Parameters.AddWithValue("@enddate", DateTime.Now.AddDays(30));
                         cmd.Parameters.AddWithValue("@user", data.Item2);
@@ -230,19 +233,15 @@ namespace Bibliotekssystem.Database
         // admin commands
 
         // grab all unpaid invoices to see who owes what
-        public List<Invoice> GetUnpaidInvoices()
-        {
+        public List<Invoice> GetUnpaidInvoices() {
             List<Invoice> results = new List<Invoice>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "SELECT ID, amount, enddate, FORuser FROM invoice WHERE status = 'Unpaid'";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
+                using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                    while (reader.Read()) {
                         Invoice inv = new Invoice();
                         inv.Id = reader.GetInt32("ID");
                         inv.Amount = reader.GetDecimal("amount");
@@ -258,15 +257,12 @@ namespace Bibliotekssystem.Database
         }
 
         // button to mark as paid
-        public bool PayInvoice(int invoiceId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool PayInvoice(int invoiceId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "UPDATE invoice SET status = 'Paid' WHERE ID = @id";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@id", invoiceId);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0; // true if it actually updated
@@ -275,19 +271,15 @@ namespace Bibliotekssystem.Database
         }
 
         // grab active loans to see who has what and when it is due
-        public List<Loan> GetAllActiveLoans()
-        {
+        public List<Loan> GetAllActiveLoans() {
             List<Loan> results = new List<Loan>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "SELECT ID, loanstartdate, returndate, FORuser, FORcopy FROM loan WHERE status = 'Active'";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
+                using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                    while (reader.Read()) {
                         Loan l = new Loan();
                         l.Id = reader.GetInt32("ID");
                         l.LoanStartDate = reader.GetDateTime("loanstartdate");
@@ -302,15 +294,12 @@ namespace Bibliotekssystem.Database
         }
 
         // new product
-        public bool AddNewCopy(int mediaId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool AddNewCopy(int mediaId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "INSERT INTO copy (FORmedia) VALUES (@mediaId)";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@mediaId", mediaId);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0;
@@ -319,16 +308,13 @@ namespace Bibliotekssystem.Database
         }
 
         // remove copy from system
-        public bool RemoveCopy(int copyId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool RemoveCopy(int copyId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 // deletes the copy permanently from the database
                 string query = "DELETE FROM copy WHERE ID = @copyId";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@copyId", copyId);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0;
@@ -337,17 +323,14 @@ namespace Bibliotekssystem.Database
         }
 
         // new user 
-        
-        public bool AddNewUser(string email, string password, bool isAdmin)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+
+        public bool AddNewUser(string email, string password, bool isAdmin) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 string query = "INSERT INTO user (role, email, password) VALUES (@role, @email, @password)";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     // bool to into the exact strings your database uses
                     string roleChoice = isAdmin ? "Admin" : "Borrower";
 
@@ -359,7 +342,7 @@ namespace Bibliotekssystem.Database
                     return rowsAffected > 0;
                 }
             }
-        
-    }
+
         }
     }
+}
