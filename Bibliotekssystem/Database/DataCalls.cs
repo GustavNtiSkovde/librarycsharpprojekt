@@ -3,41 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 
-namespace Bibliotekssystem.Database
-{
-    public class DataCalls
-    {
+namespace Bibliotekssystem.Database {
+    public class DataCalls {
         // db connection
         private string connectionString = "Server=127.0.0.1;Port=3307;Database=librarystina;Uid=root;Pwd=admin123;AllowPublicKeyRetrieval=True;";
 
-        public void TestConnection()
-        {
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
-                {
+        public void TestConnection() {
+            try {
+                using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                     conn.Open();
                     Console.WriteLine("Connected to the database.");
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Console.WriteLine("Failed: " + ex.Message);
             }
         }
 
         // get role
-        public string? VerifyUserLogin(string inputEmail, string inputPassword)
-        {
+        public string? VerifyUserLogin(string inputEmail, string inputPassword) {
             string query = "SELECT role FROM user WHERE email = @Email AND password = @Password";
 
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
-            {
-                try
-                {
+            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
+                try {
                     connection.Open();
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
+                    using (MySqlCommand command = new MySqlCommand(query, connection)) {
                         command.Parameters.AddWithValue("@Email", inputEmail);
                         command.Parameters.AddWithValue("@Password", inputPassword);
 
@@ -45,8 +35,7 @@ namespace Bibliotekssystem.Database
                         if (result != null) return result.ToString();
                     }
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     MessageBox.Show("Databas-fel: " + ex.Message, "Krasch");
                 }
             }
@@ -54,24 +43,18 @@ namespace Bibliotekssystem.Database
         }
 
         // get user data
-        public User? GetUserByEmailAndPassword(string inputEmail, string inputPassword)
-        {
+        public User? GetUserByEmailAndPassword(string inputEmail, string inputPassword) {
             string query = "SELECT ID, role, email FROM user WHERE email = @Email AND password = @Password LIMIT 1";
 
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
-            {
-                try
-                {
+            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
+                try {
                     connection.Open();
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
+                    using (MySqlCommand command = new MySqlCommand(query, connection)) {
                         command.Parameters.AddWithValue("@Email", inputEmail);
                         command.Parameters.AddWithValue("@Password", inputPassword);
 
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
                                 return new User
                                 {
                                     Id = reader.IsDBNull(reader.GetOrdinal("ID")) ? 0 : reader.GetInt32("ID"),
@@ -82,8 +65,7 @@ namespace Bibliotekssystem.Database
                         }
                     }
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     MessageBox.Show("Database Connection Error: " + ex.Message);
                 }
             }
@@ -91,11 +73,9 @@ namespace Bibliotekssystem.Database
         }
 
         // search everything
-        public List<Media> SearchMedia(string searchTerm)
-        {
+        public List<Media> SearchMedia(string searchTerm) {
             List<Media> results = new List<Media>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 // join tables to get the media type
@@ -117,13 +97,10 @@ namespace Bibliotekssystem.Database
                        OR p.lname LIKE @search
                     GROUP BY m.ID";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@search", "%" + searchTerm + "%");
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             Media m = new Media
                             {
                                 Id = reader.GetInt32("ID"),
@@ -149,10 +126,8 @@ namespace Bibliotekssystem.Database
         }
 
         // borrow if copy is free
-        public Loan? BorrowMedia(int userId, int mediaId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public Loan? BorrowMedia(int userId, int mediaId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 string findCopyQuery = @"
@@ -162,15 +137,13 @@ namespace Bibliotekssystem.Database
                     LIMIT 1";
 
                 int availableCopyId = 0;
-                using (MySqlCommand cmd = new MySqlCommand(findCopyQuery, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(findCopyQuery, conn)) {
                     cmd.Parameters.AddWithValue("@mediaId", mediaId);
                     object result = cmd.ExecuteScalar();
                     if (result != null) availableCopyId = Convert.ToInt32(result);
                 }
 
-                if (availableCopyId > 0)
-                {
+                if (availableCopyId > 0) {
                     DateTime startDate = DateTime.Now;
                     DateTime dueDate = startDate.AddDays(21);
 
@@ -179,8 +152,7 @@ namespace Bibliotekssystem.Database
                         VALUES (@start, @end, 'Active', @user, @copy);
                         SELECT LAST_INSERT_ID();";
 
-                    using (MySqlCommand cmd = new MySqlCommand(insertLoanQuery, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(insertLoanQuery, conn)) {
                         cmd.Parameters.AddWithValue("@start", startDate);
                         cmd.Parameters.AddWithValue("@end", dueDate);
                         cmd.Parameters.AddWithValue("@user", userId);
@@ -201,14 +173,11 @@ namespace Bibliotekssystem.Database
         }
 
         // return copy
-        public bool ReturnMedia(int copyId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool ReturnMedia(int copyId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "UPDATE loan SET status = 'Returned' WHERE FORcopy = @copy AND status = 'Active'";
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@copy", copyId);
                     return cmd.ExecuteNonQuery() > 0;
                 }
@@ -216,11 +185,9 @@ namespace Bibliotekssystem.Database
         }
 
         // deal with late returns
-        public List<Invoice> ProcessOverdueLoans()
-        {
+        public List<Invoice> ProcessOverdueLoans() {
             List<Invoice> invoices = new List<Invoice>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string findOverdueQuery = @"
                     SELECT l.ID as LoanID, l.FORuser, m.replacementvalue 
@@ -230,25 +197,20 @@ namespace Bibliotekssystem.Database
                     WHERE l.status = 'Active' AND l.returndate < @now";
 
                 List<Tuple<int, int, decimal>> overdueData = new List<Tuple<int, int, decimal>>();
-                using (MySqlCommand cmd = new MySqlCommand(findOverdueQuery, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(findOverdueQuery, conn)) {
                     cmd.Parameters.AddWithValue("@now", DateTime.Now.Date);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             overdueData.Add(new Tuple<int, int, decimal>(
                                 reader.GetInt32("LoanID"), reader.GetInt32("FORuser"), reader.GetDecimal("replacementvalue")));
                         }
                     }
                 }
 
-                foreach (var data in overdueData)
-                {
+                foreach (var data in overdueData) {
                     decimal penalty = data.Item3 * 1.5m;
                     string updateLoan = "UPDATE loan SET status = 'Overdue' WHERE ID = @loanId";
-                    using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(updateLoan, conn)) {
                         cmd.Parameters.AddWithValue("@loanId", data.Item1);
                         cmd.ExecuteNonQuery();
                     }
@@ -258,8 +220,7 @@ namespace Bibliotekssystem.Database
                         VALUES (@amount, @enddate, 'Unpaid', @user);
                         SELECT LAST_INSERT_ID();";
 
-                    using (MySqlCommand cmd = new MySqlCommand(insertInvoice, conn))
-                    {
+                    using (MySqlCommand cmd = new MySqlCommand(insertInvoice, conn)) {
                         cmd.Parameters.AddWithValue("@amount", penalty);
                         cmd.Parameters.AddWithValue("@enddate", DateTime.Now.AddDays(30));
                         cmd.Parameters.AddWithValue("@user", data.Item2);
@@ -271,18 +232,14 @@ namespace Bibliotekssystem.Database
         }
 
         // get unpaid stuff
-        public List<Invoice> GetUnpaidInvoices()
-        {
+        public List<Invoice> GetUnpaidInvoices() {
             List<Invoice> results = new List<Invoice>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "SELECT ID, amount, enddate, FORuser FROM invoice WHERE status = 'Unpaid'";
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
+                using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                    while (reader.Read()) {
                         results.Add(new Invoice
                         {
                             Id = reader.GetInt32("ID"),
@@ -298,13 +255,10 @@ namespace Bibliotekssystem.Database
         }
 
         // pay it
-        public bool PayInvoice(int invoiceId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool PayInvoice(int invoiceId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("UPDATE invoice SET status = 'Paid' WHERE ID = @id", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("UPDATE invoice SET status = 'Paid' WHERE ID = @id", conn)) {
                     cmd.Parameters.AddWithValue("@id", invoiceId);
                     return cmd.ExecuteNonQuery() > 0;
                 }
@@ -312,11 +266,9 @@ namespace Bibliotekssystem.Database
         }
 
         // list loans, group by id to stop dupes
-        public List<Loan> GetAllActiveLoans()
-        {
+        public List<Loan> GetAllActiveLoans() {
             List<Loan> results = new List<Loan>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
 
                 string query = @"
@@ -335,10 +287,8 @@ namespace Bibliotekssystem.Database
                     GROUP BY l.ID";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
+                using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                    while (reader.Read()) {
                         Loan l = new Loan
                         {
                             Id = reader.GetInt32("ID"),
@@ -350,8 +300,7 @@ namespace Bibliotekssystem.Database
                             CategoryName = reader.IsDBNull(reader.GetOrdinal("CategoryName")) ? "" : reader.GetString("CategoryName")
                         };
 
-                        if (!reader.IsDBNull(reader.GetOrdinal("returndate")))
-                        {
+                        if (!reader.IsDBNull(reader.GetOrdinal("returndate"))) {
                             l.ReturnDate = reader.GetDateTime("returndate");
                         }
                         results.Add(l);
@@ -362,13 +311,10 @@ namespace Bibliotekssystem.Database
         }
 
         // add copy
-        public bool AddNewCopy(int mediaId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool AddNewCopy(int mediaId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@mediaId)", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@mediaId)", conn)) {
                     cmd.Parameters.AddWithValue("@mediaId", mediaId);
                     return cmd.ExecuteNonQuery() > 0;
                 }
@@ -376,13 +322,10 @@ namespace Bibliotekssystem.Database
         }
 
         // delete copy
-        public bool RemoveCopy(int copyId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool RemoveCopy(int copyId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("DELETE FROM copy WHERE ID = @copyId", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("DELETE FROM copy WHERE ID = @copyId", conn)) {
                     cmd.Parameters.AddWithValue("@copyId", copyId);
                     return cmd.ExecuteNonQuery() > 0;
                 }
@@ -390,13 +333,10 @@ namespace Bibliotekssystem.Database
         }
 
         // new user
-        public bool AddNewUser(string email, string password, bool isAdmin)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool AddNewUser(string email, string password, bool isAdmin) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO user (role, email, password) VALUES (@role, @email, @password)", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO user (role, email, password) VALUES (@role, @email, @password)", conn)) {
                     cmd.Parameters.AddWithValue("@role", isAdmin ? "Admin" : "Borrower");
                     cmd.Parameters.AddWithValue("@email", email);
                     cmd.Parameters.AddWithValue("@password", password);
@@ -405,13 +345,10 @@ namespace Bibliotekssystem.Database
             }
         }
         // update user role in db
-        public bool UpdateUserRole(string email, bool isAdmin)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool UpdateUserRole(string email, bool isAdmin) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("UPDATE user SET role = @role WHERE email = @email", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("UPDATE user SET role = @role WHERE email = @email", conn)) {
                     cmd.Parameters.AddWithValue("@role", isAdmin ? "Admin" : "Borrower");
                     cmd.Parameters.AddWithValue("@email", email);
                     return cmd.ExecuteNonQuery() > 0;
@@ -419,67 +356,53 @@ namespace Bibliotekssystem.Database
             }
         }
         // change media title in db
-        public bool UpdateMedia(int mediaId, string newTitle)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool UpdateMedia(int mediaId, string newTitle) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand("UPDATE media SET title = @title WHERE ID = @id", conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand("UPDATE media SET title = @title WHERE ID = @id", conn)) {
                     cmd.Parameters.AddWithValue("@title", newTitle);
                     cmd.Parameters.AddWithValue("@id", mediaId);
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
         }
-   
-        public bool DeleteMedia(int mediaId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+
+        public bool DeleteMedia(int mediaId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (var transaction = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORcopy IN (SELECT ID FROM copy WHERE FORmedia = @id)", conn, transaction))
-                        {
+                using (var transaction = conn.BeginTransaction()) {
+                    try {
+                        using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORcopy IN (SELECT ID FROM copy WHERE FORmedia = @id)", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM copy WHERE FORmedia = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM copy WHERE FORmedia = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM book WHERE ID = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM book WHERE ID = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM movie WHERE ID = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM movie WHERE ID = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM audiobook WHERE ID = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM audiobook WHERE ID = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM personmedia WHERE FORmedia = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM personmedia WHERE FORmedia = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM media WHERE ID = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM media WHERE ID = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", mediaId);
                             int rows = cmd.ExecuteNonQuery();
 
@@ -487,8 +410,7 @@ namespace Bibliotekssystem.Database
                             return rows > 0;
                         }
                     }
-                    catch
-                    {
+                    catch {
                         transaction.Rollback();
                         throw;
                     }
@@ -496,20 +418,15 @@ namespace Bibliotekssystem.Database
             }
         }
         // sök användare
-        public List<User> SearchUsers(string searchTerm)
-        {
+        public List<User> SearchUsers(string searchTerm) {
             List<User> results = new List<User>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "SELECT ID, role, email FROM user WHERE email LIKE @search OR role LIKE @search";
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@search", "%" + searchTerm + "%");
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             results.Add(new User
                             {
                                 Id = reader.GetInt32("ID"),
@@ -524,29 +441,22 @@ namespace Bibliotekssystem.Database
         }
 
         // ta bort användare
-        public bool DeleteUser(int userId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool DeleteUser(int userId) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (var transaction = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORuser = @id", conn, transaction))
-                        {
+                using (var transaction = conn.BeginTransaction()) {
+                    try {
+                        using (var cmd = new MySqlCommand("DELETE FROM loan WHERE FORuser = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", userId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM invoice WHERE FORuser = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM invoice WHERE FORuser = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", userId);
                             cmd.ExecuteNonQuery();
                         }
 
-                        using (var cmd = new MySqlCommand("DELETE FROM user WHERE ID = @id", conn, transaction))
-                        {
+                        using (var cmd = new MySqlCommand("DELETE FROM user WHERE ID = @id", conn, transaction)) {
                             cmd.Parameters.AddWithValue("@id", userId);
                             int rows = cmd.ExecuteNonQuery();
 
@@ -554,71 +464,100 @@ namespace Bibliotekssystem.Database
                             return rows > 0;
                         }
                     }
-                    catch
-                    {
+                    catch {
                         transaction.Rollback();
                         throw;
                     }
                 }
             }
         }
-        // skapa ny media i databasen
-        public bool CreateMedia(string title, int categoryCode, string mediaType)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+
+
+        // Get category ID by sabcode (letter)
+        public int? GetCategoryIdBySabcode(string sabcode) {
+            if (string.IsNullOrWhiteSpace(sabcode)) return null;
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
+                try {
+                    conn.Open();
+                    string query = "SELECT ID FROM category WHERE sabcode = @sabcode LIMIT 1";
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
+                        cmd.Parameters.AddWithValue("@sabcode", sabcode);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null) return Convert.ToInt32(result);
+                    }
+                }
+                catch (Exception ex) {
+                    System.Diagnostics.Debug.WriteLine("Error getting category: " + ex.Message);
+                }
+            }
+            return null;
+        }
+
+        // Create book with full metadata
+        public bool CreateBook(string title, string isbn, string author, string publisher, int year, string language, string barcode, decimal purchaseValue, decimal replacementValue, string categoryCode) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
-                using (var transaction = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        string insertMedia = "INSERT INTO media (title, FORcategory, replacementvalue) VALUES (@title, @cat, 150.00); SELECT LAST_INSERT_ID();";
+                using (var transaction = conn.BeginTransaction()) {
+                    try {
+                        int? categoryId = GetCategoryIdBySabcode(categoryCode);
+                        // Insert into media table
+                        string insertMediaQuery = "INSERT INTO media (mediatype, title, FORcategory, replacementvalue, purchasevalue, barcode) VALUES (@mediatype, @title, @category, @replacement, @purchase, @barcode); SELECT LAST_INSERT_ID();";
                         int mediaId = 0;
 
-                        using (var cmd = new MySqlCommand(insertMedia, conn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@title", title);
-                            cmd.Parameters.AddWithValue("@cat", categoryCode);
+                        using (var cmd = new MySqlCommand(insertMediaQuery, conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediatype", "Book");
+                            cmd.Parameters.AddWithValue("@title", string.IsNullOrWhiteSpace(title) ? "Utan titel" : title);
+                            cmd.Parameters.AddWithValue("@category", categoryId.HasValue ? (object)categoryId.Value : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@replacement", replacementValue > 0 ? replacementValue : 150.00m);
+                            cmd.Parameters.AddWithValue("@purchase", purchaseValue > 0 ? purchaseValue : 100.00m);
+                            cmd.Parameters.AddWithValue("@barcode", barcode ?? string.Empty);
+
                             mediaId = Convert.ToInt32(cmd.ExecuteScalar());
                         }
 
-                        if (mediaType == "Bok")
-                        {
-                            using (var cmd = new MySqlCommand("INSERT INTO book (ID, isbn) VALUES (@id, '9789100000000')", conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@id", mediaId);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        else if (mediaType == "Film")
-                        {
-                            using (var cmd = new MySqlCommand("INSERT INTO movie (ID) VALUES (@id)", conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@id", mediaId);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        else if (mediaType == "Ljudbok")
-                        {
-                            using (var cmd = new MySqlCommand("INSERT INTO audiobook (ID) VALUES (@id)", conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@id", mediaId);
-                                cmd.ExecuteNonQuery();
-                            }
+                        // Insert into book table with publisher
+                        using (var cmd = new MySqlCommand("INSERT INTO book (ID ,isbn, publisher, publicationyear) VALUES (@id, @isbn, @publisher, @year)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@id", mediaId);
+                            cmd.Parameters.AddWithValue("@isbn", isbn ?? "9789100000000");
+                            cmd.Parameters.AddWithValue("@publisher", publisher ?? string.Empty);
+                            cmd.Parameters.AddWithValue("@year", year > 0 ? year : 0);
+                            cmd.ExecuteNonQuery();
                         }
 
-                        // skapa en standardkopia direkt
-                        using (var cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@id)", conn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@id", mediaId);
+                        // Create default copy
+                        using (var cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@mediaId)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediaId", mediaId);
                             cmd.ExecuteNonQuery();
+                        }
+
+                        // If author provided, create person and link to media
+                        if (!string.IsNullOrWhiteSpace(author)) {
+                            string[] names = author.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                            string firstName = names.Length > 0 ? names[0] : "Okänd";
+                            string lastName = names.Length > 1 ? string.Join(" ", names, 1, names.Length - 1) : "";
+
+                            string insertPersonQuery = "INSERT INTO person (fname, lname, title) VALUES (@fname, @lname, @title); SELECT LAST_INSERT_ID();";
+                            int personId = 0;
+
+                            using (var cmd = new MySqlCommand(insertPersonQuery, conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@fname", firstName);
+                                cmd.Parameters.AddWithValue("@lname", lastName);
+                                cmd.Parameters.AddWithValue("@title", "Author");
+                                personId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+
+                            using (var cmd = new MySqlCommand("INSERT INTO personmedia (FORperson, FORmedia) VALUES (@person, @media)", conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@person", personId);
+                                cmd.Parameters.AddWithValue("@media", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
                         }
 
                         transaction.Commit();
                         return true;
                     }
-                    catch
-                    {
+                    catch {
                         transaction.Rollback();
                         throw;
                     }
@@ -626,15 +565,159 @@ namespace Bibliotekssystem.Database
             }
         }
 
+        // Create audiobook with full metadata
+        public bool CreateAudiobook(string title, string isbn, string creator, int lengthMinutes, string audioFormat, string language, string barcode, decimal purchaseValue, decimal replacementValue, string categoryCode) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction()) {
+                    try {
+                        int? categoryId = GetCategoryIdBySabcode(categoryCode);
+                        // Insert into media table
+                        string insertMediaQuery = "INSERT INTO media (mediatype, title, FORcategory, replacementvalue, purchasevalue, barcode) VALUES (@mediatype, @title, @category, @replacement, @purchase, @barcode); SELECT LAST_INSERT_ID();";
+                        int mediaId = 0;
+
+                        using (var cmd = new MySqlCommand(insertMediaQuery, conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediatype", "AudioBook");
+                            cmd.Parameters.AddWithValue("@title", string.IsNullOrWhiteSpace(title) ? "Utan titel" : title);
+                            cmd.Parameters.AddWithValue("@category", categoryId.HasValue ? (object)categoryId.Value : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@replacement", replacementValue > 0 ? replacementValue : 150.00m);
+                            cmd.Parameters.AddWithValue("@purchase", purchaseValue > 0 ? purchaseValue : 100.00m);
+                            cmd.Parameters.AddWithValue("@barcode", barcode ?? string.Empty);
+                            mediaId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // Insert into audiobook table with length and format
+                        using (var cmd = new MySqlCommand("INSERT INTO audiobook (ID, isbn, durationminutes, audioformat, language) VALUES (@id, @isbn, @length, @format, @language)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@id", mediaId);
+                            cmd.Parameters.AddWithValue("@isbn", isbn ?? "9789100000000");
+                            cmd.Parameters.AddWithValue("@length", lengthMinutes > 0 ? lengthMinutes : 0);
+                            cmd.Parameters.AddWithValue("@format", audioFormat ?? string.Empty);
+                            cmd.Parameters.AddWithValue("@language", language ?? string.Empty);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Create default copy
+                        using (var cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@mediaId)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediaId", mediaId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // If creator provided, create person and link to media
+                        if (!string.IsNullOrWhiteSpace(creator)) {
+                            string[] names = creator.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                            string firstName = names.Length > 0 ? names[0] : "Okänd";
+                            string lastName = names.Length > 1 ? string.Join(" ", names, 1, names.Length - 1) : "";
+
+                            string insertPersonQuery = "INSERT INTO person (fname, lname, title) VALUES (@fname, @lname, @title); SELECT LAST_INSERT_ID();";
+                            int personId = 0;
+
+                            using (var cmd = new MySqlCommand(insertPersonQuery, conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@fname", firstName);
+                                cmd.Parameters.AddWithValue("@lname", lastName);
+                                cmd.Parameters.AddWithValue("@title", "Author");
+                                personId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+
+                            using (var cmd = new MySqlCommand("INSERT INTO personmedia (FORperson, FORmedia) VALUES (@person, @media)", conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@person", personId);
+                                cmd.Parameters.AddWithValue("@media", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        // Create movie with full metadata
+        public bool CreateMovie(string title, string ean, string director, int lengthMinutes, int year, string language, string barcode, decimal purchaseValue, decimal replacementValue, string categoryCode) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction()) {
+                    try {
+                        int? categoryId = GetCategoryIdBySabcode(categoryCode);
+                        // Insert into media table
+                        string insertMediaQuery = "INSERT INTO media (mediatype, title, FORcategory, replacementvalue, purchasevalue, barcode) VALUES (@mediatype, @title, @category, @replacement, @purchase, @barcode); SELECT LAST_INSERT_ID();";
+                        int mediaId = 0;
+
+                        using (var cmd = new MySqlCommand(insertMediaQuery, conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediatype", "Movie");
+                            cmd.Parameters.AddWithValue("@title", string.IsNullOrWhiteSpace(title) ? "Utan titel" : title);
+                            cmd.Parameters.AddWithValue("@category", categoryId.HasValue ? (object)categoryId.Value : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@replacement", replacementValue > 0 ? replacementValue : 150.00m);
+                            cmd.Parameters.AddWithValue("@purchase", purchaseValue > 0 ? purchaseValue : 100.00m);
+                            cmd.Parameters.AddWithValue("@barcode", barcode ?? string.Empty);
+                            mediaId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // Insert into movie table with length
+                        using (var cmd = new MySqlCommand("INSERT INTO movie (ID, ean, durationminutes,  releaseyear) VALUES (@id, @ean, @length, @year)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@id", mediaId);
+                            cmd.Parameters.AddWithValue("@ean", ean ?? string.Empty);
+                            cmd.Parameters.AddWithValue("@length", lengthMinutes > 0 ? lengthMinutes : 0);
+                            cmd.Parameters.AddWithValue("@year", year > 0 ? year : 0);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Create default copy
+                        using (var cmd = new MySqlCommand("INSERT INTO copy (FORmedia) VALUES (@mediaId)", conn, transaction)) {
+                            cmd.Parameters.AddWithValue("@mediaId", mediaId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // If director provided, create person and link to media
+                        if (!string.IsNullOrWhiteSpace(director)) {
+                            string[] names = director.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                            string firstName = names.Length > 0 ? names[0] : "Okänd";
+                            string lastName = names.Length > 1 ? string.Join(" ", names, 1, names.Length - 1) : "";
+
+                            string insertPersonQuery = "INSERT INTO person (fname, lname, title) VALUES (@fname, @lname, @title); SELECT LAST_INSERT_ID();";
+                            int personId = 0;
+
+                            using (var cmd = new MySqlCommand(insertPersonQuery, conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@fname", firstName);
+                                cmd.Parameters.AddWithValue("@lname", lastName);
+                                cmd.Parameters.AddWithValue("@title", "Director");
+                                personId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+
+                            using (var cmd = new MySqlCommand("INSERT INTO personmedia (FORperson, FORmedia) VALUES (@person, @media)", conn, transaction)) {
+                                cmd.Parameters.AddWithValue("@person", personId);
+                                cmd.Parameters.AddWithValue("@media", mediaId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
         // skapa konto med lösenord
-        public bool CreateUserAccount(string email, string password, bool isAdmin)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool CreateUserAccount(string email, string password, bool isAdmin) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "INSERT INTO user (role, email, password) VALUES (@role, @email, @password)";
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@role", isAdmin ? "Admin" : "Borrower");
                     cmd.Parameters.AddWithValue("@email", email);
                     cmd.Parameters.AddWithValue("@password", password);
@@ -644,14 +727,11 @@ namespace Bibliotekssystem.Database
         }
 
         // ändra lösenord för användare
-        public bool UpdateUserPassword(string email, string newPassword)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
+        public bool UpdateUserPassword(string email, string newPassword) {
+            using (MySqlConnection conn = new MySqlConnection(connectionString)) {
                 conn.Open();
                 string query = "UPDATE user SET password = @pwd WHERE email = @email";
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
+                using (MySqlCommand cmd = new MySqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@pwd", newPassword);
                     cmd.Parameters.AddWithValue("@email", email);
                     return cmd.ExecuteNonQuery() > 0;

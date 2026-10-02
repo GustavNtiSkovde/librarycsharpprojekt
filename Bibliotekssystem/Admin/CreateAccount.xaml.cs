@@ -17,7 +17,7 @@ namespace Bibliotekssystem.Admin
         private void CreateAccountBtn(object sender, RoutedEventArgs e)
         {
             string email = EmailInput.Text;
-            string pwd = PasswordInput.Text;
+            string pwd = PasswordInput.Password;
             bool isAdmin = RoleAdmin.IsChecked == true;
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(pwd))
@@ -41,7 +41,7 @@ namespace Bibliotekssystem.Admin
         private void EditAccountDoneBtn(object sender, RoutedEventArgs e)
         {
             string email = EmailInput.Text;
-            string pwd = PasswordInput.Text;
+            string pwd = PasswordInput.Password;
             bool isAdmin = RoleAdmin.IsChecked == true;
 
             if (!string.IsNullOrWhiteSpace(pwd))

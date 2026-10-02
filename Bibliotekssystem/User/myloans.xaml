@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Bibliotekssystem.User"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="900">
+             d:DesignHeight="500" d:DesignWidth="900">
     <Grid Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -35,7 +35,7 @@
 
                 <!-- Knappen bytt till att gå tillbaka till sökningen -->
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Button Click="GoToSearch" Width="100" Height="40" Content="Sök Böcker" Background="LightGreen"/>
+                    <Button Click="GoToSearch" Width="100" Height="40" Content="Sök Böcker"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">

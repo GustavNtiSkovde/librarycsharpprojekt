@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Bibliotekssystem.Admin"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="900">
+             d:DesignHeight="500" d:DesignWidth="900">
     <Grid Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -43,25 +43,35 @@
             <StackPanel Margin="20">
                 <TextBlock Text="Lägg Till Bok" FontSize="25" FontWeight="Bold"/>
                 <TextBlock Text="Titel:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Titel..."/>
+                <TextBox x:Name="TitleInput" Text="Titel..."/>
+                
                 <TextBlock Text="Författare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Författare..."/>
+                <TextBox x:Name="AuthorInput" Text="Författare..."/>
+                
                 <TextBlock Text="Publicerare:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Publicerare..."/>
-                <TextBox Text="SAB"/>
-                <TextBlock Text="SAB Kategori" FontSize="12" FontWeight="Bold"/>
+                <TextBox x:Name="Publicator" Text="Publicerare..."/>
+
                 <TextBlock Text="Språk:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Språk..."/>
+                <TextBox x:Name="LanguageInput" Text="Språk..."/>
+                
                 <TextBlock Text="Utgivnings år:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Utgivnings år..."/>
+                <TextBox x:Name="YearInput" Text="Utgivnings år..."/>
+                
                 <TextBlock Text="ISBN nr:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="ISBN..."/>
+                <TextBox x:Name="IsbnInput" Text="ISBN..."/>
+
+                <TextBlock Text="SAB Kategori" FontSize="12" FontWeight="Bold"/>
+                <TextBox x:Name="SabInput" Text="SAB"/>
+
                 <TextBlock Text="Sträckkod:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Sträckkod..."/>
+                <TextBox x:Name="BarcodeInput" Text="Sträckkod..."/>
+                
                 <TextBlock Text="Inköps värde:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Inköps värde..."/>
+                <TextBox x:Name="PurchaseValueInput" Text="Inköps värde..."/>
+                
                 <TextBlock Text="Ersättnings värde:" FontSize="12" FontWeight="Bold"/>
-                <TextBox Text="Ersättnings värde..."/>
+                <TextBox x:Name="ReplacementValueInput" Text="Ersättnings värde..."/>
+                
                 <Button Click="EditBookDoneBtn" Content="Klar" Width="70" HorizontalAlignment="Left" Margin="0,10,0,0"/>
             </StackPanel>
         </Border>
